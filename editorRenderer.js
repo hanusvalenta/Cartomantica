@@ -7,6 +7,16 @@ const ctx = canvas.getContext('2d');
 const waterTexture = new Image();
 waterTexture.src = 'water_texture.png'; // Load your water texture here
 
+// Function to create a new map
+function createNewMap() {
+    // Clear the canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Reset any other states or data needed for a new map
+    lakePath = []; // Clear the lake path
+    isDrawing = false; // Ensure we are not in drawing mode
+}
+
 // Function to start drawing
 function startDrawing(event) {
     isDrawing = true;
@@ -59,7 +69,10 @@ if (document.getElementById('lassoLakeToolButton')) {
         if (isLassoToolActive) {
             document.getElementById('lassoLakeToolButton').innerText = 'Lasso Tool';
             alert('Lasso Tool activated. Draw around the area you want to select.');
-            // Implement lasso-specific logic here (if any)
+            // Remove drawing event listeners
+            canvas.removeEventListener('mousedown', startDrawing);
+            canvas.removeEventListener('mousemove', drawLake);
+            canvas.removeEventListener('mouseup', finishDrawing);
         } else {
             document.getElementById('lassoLakeToolButton').innerText = 'Lake Tool';
             alert('Lake Tool activated. Click and drag to draw a lake.');
@@ -68,5 +81,12 @@ if (document.getElementById('lassoLakeToolButton')) {
             canvas.addEventListener('mousemove', drawLake);
             canvas.addEventListener('mouseup', finishDrawing);
         }
+    });
+}
+
+// Event listener for the New Map button
+if (document.getElementById('newMapButton')) {
+    document.getElementById('newMapButton').addEventListener('click', () => {
+        createNewMap(); // Call the function to create a new map
     });
 }
