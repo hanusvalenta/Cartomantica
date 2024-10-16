@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const path = require('path'); // Path module to construct file paths
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -6,23 +7,24 @@ function createWindow() {
         height: 768,
         minWidth: 800,
         minHeight: 600,
+        icon: path.join(__dirname, 'assets', 'icon.png'), // Path to your icon file
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false, // Ensure that contextIsolation is disabled so we can use ipcRenderer
+            contextIsolation: false,
         }
     });
 
     win.loadFile('start.html');
 
     // Remove the default menu
-    Menu.setApplicationMenu(null); // This line removes the menu bar
+    Menu.setApplicationMenu(null);
 
-    // Listen for the "quit-app" event and quit the application
+    // Quit the app when the "quit-app" event is received
     ipcMain.on('quit-app', () => {
         app.quit();
     });
 
-    // Listen for the "close-window" event and close the current window
+    // Close the current window when the "close-window" event is received
     ipcMain.on('close-window', () => {
         win.close();
     });
