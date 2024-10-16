@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -13,6 +13,9 @@ function createWindow() {
     });
 
     win.loadFile('start.html');
+
+    // Remove the default menu
+    Menu.setApplicationMenu(null); // This line removes the menu bar
 
     // Listen for the "quit-app" event and quit the application
     ipcMain.on('quit-app', () => {
