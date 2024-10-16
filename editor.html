@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartomagica - Editor</title>
+    <title>Map Editor</title>
     <link rel="stylesheet" href="editor.css">
 </head>
 <body>
-    <div class="menu-bar">
+    <h1>D&D Map Editor</h1>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
         <button id="newMapButton">New Map</button>
-        <button id="saveMapButton">Save</button>
-        <button id="loadMapButton">Load</button>
+        <button id="saveMapButton">Save Map</button>
+        <button id="loadMapButton">Load Map</button>
         <button id="settingsButton">Settings</button>
         <button id="exitEditorButton">Exit</button>
     </div>
 
-    <div class="editor-canvas">
-        <h2>Map Editor</h2>
-        <div class="map-area">
-            <p>Your map will go here!</p>
-        </div>
+    <!-- Canvas for the map -->
+    <div class="map-container">
+        <canvas id="mapCanvas" width="800" height="600"></canvas>
     </div>
 
     <script src="renderer.js"></script>

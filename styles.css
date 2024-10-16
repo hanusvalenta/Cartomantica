@@ -7,6 +7,7 @@ body {
     background-color: #2a2a2a;
     color: #f4f4f4;
     font-family: 'Cinzel', serif;
+
     background-image: url('background-texture.jpg');
     background-size: cover;
 }

@@ -1,60 +1,90 @@
+/* General styles */
 body {
+    font-family: 'Arial', sans-serif;
     margin: 0;
+    padding: 0;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f8f8; /* Light background for contrast */
+    color: #333; /* Dark text for readability */
     height: 100vh;
-    background-color: #2a2a2a;
-    color: white;
-    font-family: 'Garamond', serif;
 }
 
-.menu-bar {
-    width: 200px;
-    background-color: #3a3a3a;
-    padding: 20px;
+/* Header styles */
+h1 {
+    font-size: 2rem;
+    margin: 20px 0;
+    color: #333; /* Dark text for the header */
+    text-align: center;
+}
+
+/* Toolbar styles */
+.toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-button {
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    background-color: #5a5a5a;
-    color: white;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1000px;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #ffffff; /* White background for the toolbar */
+    border: 1px solid #ccc; /* Light gray border */
     border-radius: 5px;
-    transition: background-color 0.3s, transform 0.2s;
 }
 
-button:hover {
-    background-color: #707070;
-    transform: scale(1.05);
+.toolbar button {
+    background-color: #e7e7e7; /* Light gray buttons */
+    color: #333; /* Dark text */
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-button:active {
-    transform: scale(0.95);
+.toolbar button:hover {
+    background-color: #d4d4d4; /* Darker gray on hover */
+    transform: scale(1.05); /* Slight scaling effect on hover */
 }
 
-.editor-canvas {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    background-color: #1e1e1e;
-}
-
-.map-area {
-    flex: 1;
-    background-color: #fff;
-    border: 2px solid #3a3a3a;
-    border-radius: 8px;
+/* Canvas container styles */
+.map-container {
+    border: 2px solid #ccc; /* Light gray border */
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: black;
+    background-color: #ffffff; /* White background for the canvas area */
+    border-radius: 5px;
 }
 
-h2 {
-    margin-bottom: 20px;
+/* Canvas styles */
+canvas {
+    background-color: #ffffff; /* White background for the canvas */
+    border: 2px solid #333; /* Dark border for the canvas */
+    border-radius: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .toolbar button {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .map-container {
+        width: 100%;
+        padding: 5px;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
+    }
 }
