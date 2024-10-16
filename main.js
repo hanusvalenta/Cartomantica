@@ -7,7 +7,7 @@ function createWindow() {
         height: 768,
         minWidth: 800,
         minHeight: 600,
-        icon: path.join(__dirname, 'assets', 'icon.png'), // Path to your icon file
+        icon: path.join(__dirname, 'icon.png'), // Icon file in the root directory
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
