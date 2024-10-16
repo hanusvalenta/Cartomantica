@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cartomagica - Map Maker</title>
-    <link rel="stylesheet" href="startStyle.css">
+    <title>Cartomagica - Start Screen</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="map-controls">
-        <button id="newMapButton">Create New Map</button>
-        <button id="loadMapButton">Load Saved Map</button>
+    <div class="start-screen">
+        <h1>Welcome to Cartomagica</h1>
+        <p>Your adventure begins here!</p>
+        <div class="button-container">
+            <button id="editorButton">Editor</button>
+            <button id="loadButton">Load</button>
+            <button id="exitButton">Exit</button>
+        </div>
     </div>
-    <div id="mapCanvas"></div>
     <script src="renderer.js"></script>
 </body>
 </html>
