@@ -9,7 +9,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile('index.html');
+  win.loadFile('start.html');
 
   Menu.setApplicationMenu(null);
 }
