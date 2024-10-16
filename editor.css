@@ -87,4 +87,32 @@ canvas {
         width: 100%;
         height: auto;
     }
+
+    .tool-toolbar {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 1000px;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #ffffff; /* White background for the tool toolbar */
+        border: 1px solid #ccc; /* Light gray border */
+        border-radius: 5px;
+    }
+    
+    .tool-toolbar button {
+        background-color: #e7e7e7; /* Light gray buttons */
+        color: #333; /* Dark text */
+        border: none;
+        padding: 10px 15px;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    .tool-toolbar button:hover {
+        background-color: #d4d4d4; /* Darker gray on hover */
+        transform: scale(1.05); /* Slight scaling effect on hover */
+    }
 }
