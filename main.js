@@ -1,25 +1,28 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 
-ipcMain.on('exit-app', () => {
-    app.quit(); // Quit the application
-});
-
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 1024,   // Set initial width
-    height: 768,   // Set initial height
-    minWidth: 800, // Set minimum width
-    minHeight: 600, // Set minimum height
-    webPreferences: {
-        nodeIntegration: true,  // Enable Node.js integration
-        contextIsolation: false  // Disable context isolation (for simplicity)
-    }
+    const win = new BrowserWindow({
+        width: 1024,
+        height: 768,
+        minWidth: 800,
+        minHeight: 600,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false, // Ensure that contextIsolation is disabled so we can use ipcRenderer
+        }
     });
 
     win.loadFile('start.html');
 
-    // Remove the default menu
-    Menu.setApplicationMenu(null);
+    // Listen for the "quit-app" event and quit the application
+    ipcMain.on('quit-app', () => {
+        app.quit();
+    });
+
+    // Listen for the "close-window" event and close the current window
+    ipcMain.on('close-window', () => {
+        win.close();
+    });
 }
 
 app.whenReady().then(createWindow);

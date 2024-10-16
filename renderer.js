@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+
 // Start Screen Logic
 if (document.getElementById('editorButton')) {
     document.getElementById('editorButton').addEventListener('click', () => {
@@ -14,8 +16,7 @@ if (document.getElementById('loadButton')) {
 
 if (document.getElementById('exitButton')) {
     document.getElementById('exitButton').addEventListener('click', () => {
-        const { remote } = require('electron');
-        remote.app.quit(); // Exit the application
+        ipcRenderer.send('quit-app'); // Send a message to the main process to quit the app
     });
 }
 
@@ -50,7 +51,6 @@ if (document.getElementById('settingsButton')) {
 
 if (document.getElementById('exitEditorButton')) {
     document.getElementById('exitEditorButton').addEventListener('click', () => {
-        const { remote } = require('electron');
-        remote.getCurrentWindow().close(); // Close the editor window
+        ipcRenderer.send('close-window'); // Send a message to the main process to close the editor window
     });
 }
