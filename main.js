@@ -5,13 +5,15 @@ ipcMain.on('exit-app', () => {
 });
 
 function createWindow() {
-    const win = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: true,  // Enable Node.js integration
-            contextIsolation: false  // Disable context isolation (for simplicity)
-        }
+  const win = new BrowserWindow({
+    width: 1024,   // Set initial width
+    height: 768,   // Set initial height
+    minWidth: 800, // Set minimum width
+    minHeight: 600, // Set minimum height
+    webPreferences: {
+        nodeIntegration: true,  // Enable Node.js integration
+        contextIsolation: false  // Disable context isolation (for simplicity)
+    }
     });
 
     win.loadFile('start.html');
