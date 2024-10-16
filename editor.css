@@ -2,14 +2,14 @@ body {
     margin: 0;
     display: flex;
     height: 100vh;
-    background-color: #2a2a2a; /* Dark background */
+    background-color: #2a2a2a;
     color: white;
-    font-family: 'Garamond', serif; /* A serif font for a classic look */
+    font-family: 'Garamond', serif;
 }
 
 .menu-bar {
     width: 200px;
-    background-color: #3a3a3a; /* Darker side menu */
+    background-color: #3a3a3a;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -37,16 +37,16 @@ button:active {
 }
 
 .editor-canvas {
-    flex: 1; /* Takes up remaining space */
+    flex: 1;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    background-color: #1e1e1e; /* Darker canvas background */
+    background-color: #1e1e1e;
 }
 
 .map-area {
     flex: 1;
-    background-color: #fff; /* Light background for the map area */
+    background-color: #fff;
     border: 2px solid #3a3a3a;
     border-radius: 8px;
     display: flex;
