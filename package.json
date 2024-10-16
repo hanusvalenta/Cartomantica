@@ -1,0 +1,14 @@
+{
+  "name": "cartomantica",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Valenta Hanus",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
