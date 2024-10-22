@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Object Editor</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #objectList {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            z-index: 1;
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <button id="spawnBtn">Spawn</button>
+        <button id="editBtn">Edit</button>
+        <div id="objectList">
+            <label for="objectSelect">Select Object:</label>
+            <select id="objectSelect">
+                <option value="cube">Cube</option>
+                <option value="sphere">Sphere</option>
+            </select>
+            <button id="confirmSpawn">Spawn</button>
+        </div>
+    </div>
+    <script src="./renderer.js"></script>
+    <script>
+        // Your existing Three.js code here...
+    </script>
+</body>
+</html>
