@@ -22,7 +22,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
 let isEditMode = false;
-let temporaryCube = null; // Temporary cube object to follow cursor
+let temporaryObject = null; // Temporary object for placement preview
 
 // Camera movement variables
 const acceleration = 0.02;
@@ -84,7 +84,7 @@ document.getElementById('spawnBtn').addEventListener('click', () => {
     document.getElementById('objectList').style.display = 'block';
 });
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
-document.getElementById('confirmSpawn').addEventListener('click', spawnSelectedObject);
+document.getElementById('confirmSpawn').addEventListener('click', previewSelectedObject);
 
 // Add event listeners for mouse interactions
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
@@ -103,11 +103,11 @@ function toggleEditMode() {
     console.log(isEditMode ? "Edit mode enabled. Click on an object to edit." : "Edit mode disabled.");
 }
 
-function spawnSelectedObject() {
-    const selectedObject = document.getElementById('objectSelect').value;
+function previewSelectedObject() {
+    const selectedObjectType = document.getElementById('objectSelect').value;
 
     let geometry;
-    switch (selectedObject) {
+    switch (selectedObjectType) {
         case 'cube':
             geometry = new THREE.BoxGeometry(2, 2, 2);
             break;
@@ -124,21 +124,28 @@ function spawnSelectedObject() {
             geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
             break;
         default:
-            console.warn('Unknown object type:', selectedObject);
+            console.warn('Unknown object type:', selectedObjectType);
             return;
     }
 
     const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-    const object = new THREE.Mesh(geometry, material);
-    object.position.set(0, 1, 0); // Position it slightly above the plane
+    temporaryObject = new THREE.Mesh(geometry, material);
+    temporaryObject.position.set(0, 1, 0); // Position it slightly above the plane
 
-    scene.add(object);
+    scene.add(temporaryObject);
     document.getElementById('objectList').style.display = 'none'; // Hide the menu after spawning
 }
 
-// Update cube position under the cursor when moving the mouse
+function placeObject() {
+    if (temporaryObject) {
+        // Detach the temporary object from cursor tracking
+        temporaryObject = null;
+    }
+}
+
+// Update object position under the cursor when moving the mouse
 function onMouseMove(event) {
-    if (temporaryCube) {
+    if (temporaryObject) {
         // Update mouse coordinates for raycasting
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -148,7 +155,7 @@ function onMouseMove(event) {
 
         if (intersects.length > 0) {
             const intersectPoint = intersects[0].point;
-            temporaryCube.position.set(intersectPoint.x, 1, intersectPoint.z); // Move cube to mouse position
+            temporaryObject.position.set(intersectPoint.x, 1, intersectPoint.z); // Move object to mouse position
         }
     }
 
@@ -175,9 +182,8 @@ function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
 
-    if (temporaryCube && event.button === 0) { // Left click to place cube
-        // Stop the cube from following the cursor
-        temporaryCube = null;
+    if (temporaryObject && event.button === 0) { // Left click to place object
+        placeObject();
     } else if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         if (intersectedObject !== plane && isEditMode) {
