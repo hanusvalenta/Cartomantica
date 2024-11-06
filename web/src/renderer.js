@@ -24,6 +24,10 @@ let selectedObject = null;
 let isEditMode = false;
 let temporaryCube = null; // Temporary cube object to follow cursor
 
+// Camera movement variables
+const cameraSpeed = 0.5;
+const cameraMovement = { forward: false, backward: false, left: false, right: false };
+
 // Create a canvas texture with random gray dots
 function createDotTexture() {
     const canvas = document.createElement('canvas');
@@ -83,6 +87,10 @@ document.addEventListener('mousemove', onMouseMove, false);
 document.addEventListener('mouseup', onMouseUp, false);
 document.addEventListener('wheel', onMouseWheel, false);
 window.addEventListener('resize', onWindowResize, false);
+
+// Add event listeners for keyboard controls
+document.addEventListener('keydown', onKeyDown, false);
+document.addEventListener('keyup', onKeyUp, false);
 
 function toggleEditMode() {
     isEditMode = !isEditMode;
@@ -186,9 +194,61 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+// Keyboard event handlers
+function onKeyDown(event) {
+    switch (event.key) {
+        case 'w':
+        case 'W':
+            cameraMovement.forward = true;
+            break;
+        case 's':
+        case 'S':
+            cameraMovement.backward = true;
+            break;
+        case 'a':
+        case 'A':
+            cameraMovement.left = true;
+            break;
+        case 'd':
+        case 'D':
+            cameraMovement.right = true;
+            break;
+    }
+}
+
+function onKeyUp(event) {
+    switch (event.key) {
+        case 'w':
+        case 'W':
+            cameraMovement.forward = false;
+            break;
+        case 's':
+        case 'S':
+            cameraMovement.backward = false;
+            break;
+        case 'a':
+        case 'A':
+            cameraMovement.left = false;
+            break;
+        case 'd':
+        case 'D':
+            cameraMovement.right = false;
+            break;
+    }
+}
+
+// Update camera position based on keyboard input
+function updateCameraPosition() {
+    if (cameraMovement.forward) camera.position.z -= cameraSpeed;
+    if (cameraMovement.backward) camera.position.z += cameraSpeed;
+    if (cameraMovement.left) camera.position.x -= cameraSpeed;
+    if (cameraMovement.right) camera.position.x += cameraSpeed;
+}
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
+    updateCameraPosition(); // Update camera position based on key input
     renderer.render(scene, camera);
 }
 
