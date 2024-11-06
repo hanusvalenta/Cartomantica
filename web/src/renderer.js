@@ -23,6 +23,7 @@ const mouse = new THREE.Vector2();
 let selectedObject = null;
 let isEditMode = false;
 let temporaryObject = null; // Temporary object for placement preview
+let isDraggingObject = false; // Track if an object is being dragged
 
 // Camera movement variables
 const acceleration = 0.02;
@@ -100,6 +101,7 @@ document.addEventListener('keyup', onKeyUp, false);
 
 function toggleEditMode() {
     isEditMode = !isEditMode;
+    selectedObject = null; // Clear any selected object when toggling mode
     console.log(isEditMode ? "Edit mode enabled. Click on an object to edit." : "Edit mode disabled.");
 }
 
@@ -159,6 +161,20 @@ function onMouseMove(event) {
         }
     }
 
+    if (isEditMode && selectedObject && isDraggingObject) {
+        // Update mouse coordinates for raycasting
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(plane);
+
+        if (intersects.length > 0) {
+            const intersectPoint = intersects[0].point;
+            selectedObject.position.set(intersectPoint.x, 1, intersectPoint.z); // Move selected object to mouse position
+        }
+    }
+
     if (isDragging) {
         // Handle camera dragging as before
         const deltaMove = {
@@ -189,6 +205,7 @@ function onMouseDown(event) {
         if (intersectedObject !== plane && isEditMode) {
             // Select object for editing if in edit mode
             selectedObject = intersectedObject;
+            isDraggingObject = true;
             console.log("Selected object:", selectedObject);
         }
     }
@@ -201,13 +218,10 @@ function onMouseDown(event) {
 }
 
 function onMouseUp(event) {
-    if (selectedObject && isEditMode && event.button === 0) {
-        // Perform editing actions based on mouse interactions
-        selectedObject.rotation.y += Math.PI / 8; // Rotate object on left click
-        selectedObject.scale.set(selectedObject.scale.x * 1.1, selectedObject.scale.y * 1.1, selectedObject.scale.z * 1.1); // Scale object
-        console.log("Edited object:", selectedObject);
+    if (isEditMode && selectedObject && event.button === 0) {
+        // Finalize dragging the object on mouse up
+        isDraggingObject = false;
     }
-
     isDragging = false;
 }
 
@@ -232,6 +246,20 @@ function onWindowResize() {
 
 // Keyboard event handlers
 function onKeyDown(event) {
+    if (isEditMode && selectedObject) {
+        switch (event.key) {
+            case 'r': // Rotate selected object
+                selectedObject.rotation.y += Math.PI / 8;
+                break;
+            case '+': // Scale up
+                selectedObject.scale.multiplyScalar(1.1);
+                break;
+            case '-': // Scale down
+                selectedObject.scale.multiplyScalar(0.9);
+                break;
+        }
+    }
+
     switch (event.key) {
         case 'w':
         case 'W':
