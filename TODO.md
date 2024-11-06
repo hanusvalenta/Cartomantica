@@ -1,6 +1,11 @@
 # Věci na udělání
 
 * start menu s načítáním map
-* více tvarů
-* funkční edit
+* lepší tvary
+* edit ukazatele
 * další nástroje
+
+# Pro Kryštofa
+
+* rozdělit renderer.js do více files
+* importovat 3D objekty k těm defaultním
