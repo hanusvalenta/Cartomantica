@@ -123,6 +123,48 @@ function previewSelectedObject() {
         case 'cube':
             geometry = new THREE.BoxGeometry(2, 2, 2);
             break;
+        case 'tree':
+            // Tree made of a cylinder trunk and cone foliage
+            geometry = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 2), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
+            const foliage = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 16), new THREE.MeshBasicMaterial({ color: 0x228B22 }));
+            foliage.position.y = 1.5;
+            geometry.add(trunk);
+            geometry.add(foliage);
+            break;
+        case 'rock':
+            // Rock using an irregular shape
+            geometry = new THREE.DodecahedronGeometry(1);
+            geometry.applyMatrix4(new THREE.Matrix4().makeScale(1, 0.7, 1)); // Flatten for a rock shape
+            break;
+        case 'wall':
+            // Wall using a stretched box
+            geometry = new THREE.BoxGeometry(0.5, 2, 4);
+            break;
+        case 'table':
+            // Table using a thin box and cylinder legs
+            geometry = new THREE.Group();
+            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(3, 0.2, 2), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
+            const legMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+            const legs = [];
+            for (let i = 0; i < 4; i++) {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1), legMaterial);
+                leg.position.set((i < 2 ? 1.3 : -1.3), -0.6, (i % 2 === 0 ? 0.8 : -0.8));
+                legs.push(leg);
+                geometry.add(leg);
+            }
+            geometry.add(tableTop);
+            break;
+        case 'chair':
+            // Chair using a box seat and box backrest
+            geometry = new THREE.Group();
+            const seat = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 1), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
+            const backrest = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.2), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
+            backrest.position.y = 0.6;
+            backrest.position.z = -0.4;
+            geometry.add(seat);
+            geometry.add(backrest);
+            break;
         case 'sphere':
             geometry = new THREE.SphereGeometry(1.5, 32, 32);
             break;
@@ -141,7 +183,11 @@ function previewSelectedObject() {
     }
 
     const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-    temporaryObject = new THREE.Mesh(geometry, material);
+    if (selectedObjectType === 'tree' || selectedObjectType === 'table' || selectedObjectType === 'chair') {
+        temporaryObject = geometry;
+    } else {
+        temporaryObject = new THREE.Mesh(geometry, material);
+    }
     temporaryObject.position.set(0, 1, 0); // Position it slightly above the plane
 
     scene.add(temporaryObject);
