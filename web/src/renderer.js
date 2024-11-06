@@ -29,7 +29,7 @@ const acceleration = 0.02;
 const maxSpeed = 0.5;
 const friction = 0.1;
 const velocity = { x: 0, z: 0 };
-const cameraMovement = { forward: false, backward: false, left: false, right: false };
+const cameraMovement = { forward: false, backward: false, left: false, right: false, zoomIn: false, zoomOut: false };
 
 // Create a canvas texture with random gray dots
 function createDotTexture() {
@@ -216,6 +216,14 @@ function onKeyDown(event) {
         case 'D':
             cameraMovement.right = true;
             break;
+        case 'e':
+        case 'E':
+            cameraMovement.zoomIn = true;
+            break;
+        case 'q':
+        case 'Q':
+            cameraMovement.zoomOut = true;
+            break;
     }
 }
 
@@ -237,6 +245,14 @@ function onKeyUp(event) {
         case 'D':
             cameraMovement.right = false;
             break;
+        case 'e':
+        case 'E':
+            cameraMovement.zoomIn = false;
+            break;
+        case 'q':
+        case 'Q':
+            cameraMovement.zoomOut = false;
+            break;
     }
 }
 
@@ -255,6 +271,16 @@ function updateCameraPosition() {
     // Update camera position
     camera.position.x += velocity.x;
     camera.position.z += velocity.z;
+
+    // Zoom in and out based on E and Q keys
+    const zoomSpeed = 0.02;
+    if (cameraMovement.zoomIn) {
+        camera.zoom = Math.min(camera.zoom + zoomSpeed, 5); // Limit max zoom level
+    }
+    if (cameraMovement.zoomOut) {
+        camera.zoom = Math.max(camera.zoom - zoomSpeed, 0.1); // Limit min zoom level
+    }
+    camera.updateProjectionMatrix();
 }
 
 // Animation loop
