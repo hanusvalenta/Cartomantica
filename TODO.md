@@ -1,6 +1,6 @@
 # Věci na udělání
 
 * start menu s načítáním map
-* více starů
+* více tvarů
 * funkční edit
 * další nástroje
