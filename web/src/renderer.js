@@ -24,6 +24,7 @@ let selectedObject = null;
 let isEditMode = false;
 let temporaryObject = null; // Temporary object for placement preview
 let isDraggingObject = false; // Track if an object is being dragged
+let rotationSpeed = 0; // Track rotation speed for smooth rotation
 
 // Camera movement variables
 const acceleration = 0.02;
@@ -257,8 +258,11 @@ function onWindowResize() {
 function onKeyDown(event) {
     if (isEditMode && selectedObject) {
         switch (event.key) {
-            case 'r': // Rotate selected object
-                selectedObject.rotation.y += Math.PI / 8;
+            case 'r': // Rotate clockwise
+                rotationSpeed = 0.02;
+                break;
+            case 't': // Rotate counterclockwise
+                rotationSpeed = -0.02;
                 break;
             case '+': // Scale up
                 selectedObject.scale.multiplyScalar(1.1);
@@ -298,6 +302,10 @@ function onKeyDown(event) {
 }
 
 function onKeyUp(event) {
+    if (event.key === 'r' || event.key === 't') {
+        rotationSpeed = 0; // Stop rotation when key is released
+    }
+
     switch (event.key) {
         case 'w':
         case 'W':
@@ -353,10 +361,18 @@ function updateCameraPosition() {
     camera.updateProjectionMatrix();
 }
 
+// Update object rotation with smooth effect
+function updateObjectRotation() {
+    if (isEditMode && selectedObject && rotationSpeed !== 0) {
+        selectedObject.rotation.y += rotationSpeed;
+    }
+}
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
     updateCameraPosition(); // Update camera position based on key input
+    updateObjectRotation(); // Smoothly rotate the selected object
     renderer.render(scene, camera);
 }
 
