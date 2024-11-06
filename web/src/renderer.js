@@ -25,7 +25,10 @@ let isEditMode = false;
 let temporaryCube = null; // Temporary cube object to follow cursor
 
 // Camera movement variables
-const cameraSpeed = 0.5;
+const acceleration = 0.02;
+const maxSpeed = 0.5;
+const friction = 0.1;
+const velocity = { x: 0, z: 0 };
 const cameraMovement = { forward: false, backward: false, left: false, right: false };
 
 // Create a canvas texture with random gray dots
@@ -237,12 +240,21 @@ function onKeyUp(event) {
     }
 }
 
-// Update camera position based on keyboard input
+// Update camera position with smooth movement
 function updateCameraPosition() {
-    if (cameraMovement.forward) camera.position.z -= cameraSpeed;
-    if (cameraMovement.backward) camera.position.z += cameraSpeed;
-    if (cameraMovement.left) camera.position.x -= cameraSpeed;
-    if (cameraMovement.right) camera.position.x += cameraSpeed;
+    // Accelerate movement in each direction based on keys pressed
+    if (cameraMovement.forward) velocity.z = Math.max(velocity.z - acceleration, -maxSpeed);
+    if (cameraMovement.backward) velocity.z = Math.min(velocity.z + acceleration, maxSpeed);
+    if (cameraMovement.left) velocity.x = Math.max(velocity.x - acceleration, -maxSpeed);
+    if (cameraMovement.right) velocity.x = Math.min(velocity.x + acceleration, maxSpeed);
+
+    // Apply friction to gradually slow down when keys are released
+    if (!cameraMovement.forward && !cameraMovement.backward) velocity.z *= 1 - friction;
+    if (!cameraMovement.left && !cameraMovement.right) velocity.x *= 1 - friction;
+
+    // Update camera position
+    camera.position.x += velocity.x;
+    camera.position.z += velocity.z;
 }
 
 // Animation loop
