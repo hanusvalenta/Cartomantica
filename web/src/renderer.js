@@ -80,8 +80,11 @@ let isDragging = false;
 let previousMousePosition = { x: 0, y: 0 };
 
 // Add event listeners for buttons
-document.getElementById('spawnBtn').addEventListener('click', spawnSelectedObject);
+document.getElementById('spawnBtn').addEventListener('click', () => {
+    document.getElementById('objectList').style.display = 'block';
+});
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
+document.getElementById('confirmSpawn').addEventListener('click', spawnSelectedObject);
 
 // Add event listeners for mouse interactions
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
@@ -101,15 +104,36 @@ function toggleEditMode() {
 }
 
 function spawnSelectedObject() {
-    if (temporaryCube) return; // If there's already a temporary cube, do nothing
+    const selectedObject = document.getElementById('objectSelect').value;
 
-    // Create a new cube with random color
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    let geometry;
+    switch (selectedObject) {
+        case 'cube':
+            geometry = new THREE.BoxGeometry(2, 2, 2);
+            break;
+        case 'sphere':
+            geometry = new THREE.SphereGeometry(1.5, 32, 32);
+            break;
+        case 'cone':
+            geometry = new THREE.ConeGeometry(1, 3, 32);
+            break;
+        case 'cylinder':
+            geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
+            break;
+        case 'torus':
+            geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
+            break;
+        default:
+            console.warn('Unknown object type:', selectedObject);
+            return;
+    }
+
     const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-    temporaryCube = new THREE.Mesh(geometry, material);
-    temporaryCube.position.y = 1; // Raise it slightly above the plane
+    const object = new THREE.Mesh(geometry, material);
+    object.position.set(0, 1, 0); // Position it slightly above the plane
 
-    scene.add(temporaryCube); // Add it to the scene temporarily
+    scene.add(object);
+    document.getElementById('objectList').style.display = 'none'; // Hide the menu after spawning
 }
 
 // Update cube position under the cursor when moving the mouse
