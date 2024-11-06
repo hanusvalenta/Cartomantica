@@ -43,6 +43,10 @@ button:active {
     background-color: #bdbdbd; /* Darker gray when clicked */
 }
 
+button.active {
+    background-color: #b3b3b3; /* Darker gray for active state */
+}
+
 #objectList {
     display: none;
     position: absolute;

@@ -102,7 +102,16 @@ document.addEventListener('keyup', onKeyUp, false);
 function toggleEditMode() {
     isEditMode = !isEditMode;
     selectedObject = null; // Clear any selected object when toggling mode
-    console.log(isEditMode ? "Edit mode enabled. Click on an object to edit." : "Edit mode disabled.");
+
+    // Toggle active class on the Edit button
+    const editBtn = document.getElementById('editBtn');
+    if (isEditMode) {
+        editBtn.classList.add('active');
+        console.log("Edit mode enabled. Click on an object to edit.");
+    } else {
+        editBtn.classList.remove('active');
+        console.log("Edit mode disabled.");
+    }
 }
 
 function previewSelectedObject() {
