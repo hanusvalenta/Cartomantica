@@ -3,7 +3,7 @@
 * start menu s načítáním map
 * lepší tvary
 * edit ukazatele
-* další nástroje
+* další nástroje (fence tool atd...)
 
 # Pro Kryštofa
 
