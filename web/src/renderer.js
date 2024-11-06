@@ -17,11 +17,12 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Raycaster for object selection
+// Raycaster for object selection and mouse interaction
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
 let isEditMode = false;
+let temporaryCube = null; // Temporary cube object to follow cursor
 
 // Create a canvas texture with random gray dots
 function createDotTexture() {
@@ -89,11 +90,47 @@ function toggleEditMode() {
 }
 
 function spawnSelectedObject() {
-    const geometry = new THREE.BoxGeometry(2, 2, 2); // Default to cube
+    if (temporaryCube) return; // If there's already a temporary cube, do nothing
+
+    // Create a new cube with random color
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-    const newObject = new THREE.Mesh(geometry, material);
-    newObject.position.y = 1; // Raise it above the plane slightly
-    scene.add(newObject);
+    temporaryCube = new THREE.Mesh(geometry, material);
+    temporaryCube.position.y = 1; // Raise it slightly above the plane
+
+    scene.add(temporaryCube); // Add it to the scene temporarily
+}
+
+// Update cube position under the cursor when moving the mouse
+function onMouseMove(event) {
+    if (temporaryCube) {
+        // Update mouse coordinates for raycasting
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(plane);
+
+        if (intersects.length > 0) {
+            const intersectPoint = intersects[0].point;
+            temporaryCube.position.set(intersectPoint.x, 1, intersectPoint.z); // Move cube to mouse position
+        }
+    }
+
+    if (isDragging) {
+        // Handle camera dragging as before
+        const deltaMove = {
+            x: event.clientX - previousMousePosition.x,
+            y: event.clientY - previousMousePosition.y,
+        };
+
+        const panSpeed = 0.1;
+        camera.position.x -= deltaMove.x * panSpeed;
+        camera.position.z -= deltaMove.y * panSpeed;
+
+        previousMousePosition.x = event.clientX;
+        previousMousePosition.y = event.clientY;
+    }
 }
 
 function onMouseDown(event) {
@@ -103,13 +140,13 @@ function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
 
-    if (intersects.length > 0) {
+    if (temporaryCube && event.button === 0) { // Left click to place cube
+        // Stop the cube from following the cursor
+        temporaryCube = null;
+    } else if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
-        if (intersectedObject === plane) {
-            // Click on the plane to spawn
-            return; // Do nothing since spawning is handled by the dropdown
-        } else if (isEditMode) {
-            // Select the object for interaction if in edit mode
+        if (intersectedObject !== plane && isEditMode) {
+            // Select object for editing if in edit mode
             selectedObject = intersectedObject;
             console.log("Selected object:", selectedObject);
         }
@@ -120,22 +157,6 @@ function onMouseDown(event) {
         previousMousePosition.x = event.clientX;
         previousMousePosition.y = event.clientY;
     }
-}
-
-function onMouseMove(event) {
-    if (!isDragging) return;
-
-    const deltaMove = {
-        x: event.clientX - previousMousePosition.x,
-        y: event.clientY - previousMousePosition.y,
-    };
-
-    const panSpeed = 0.1; // Adjust pan speed here
-    camera.position.x -= deltaMove.x * panSpeed;
-    camera.position.z -= deltaMove.y * panSpeed;
-
-    previousMousePosition.x = event.clientX;
-    previousMousePosition.y = event.clientY;
 }
 
 function onMouseUp(event) {
