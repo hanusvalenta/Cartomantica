@@ -182,8 +182,11 @@ function onMouseUp(event) {
 }
 
 function onMouseWheel(event) {
-    const zoomSpeed = 0.1;
-    camera.zoom += event.deltaY * -zoomSpeed;
+    const zoomSpeed = 0.005; // Smaller zoom speed for smoother zooming
+    const targetZoom = camera.zoom + event.deltaY * -zoomSpeed; // Calculate target zoom level
+
+    // Limit the zoom levels for smoother experience
+    camera.zoom = Math.max(0.1, Math.min(5, targetZoom)); // Min zoom level of 0.1 and max of 5
     camera.updateProjectionMatrix();
 }
 
