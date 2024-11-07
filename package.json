@@ -13,6 +13,7 @@
     "electron": "^33.0.1"
   },
   "dependencies": {
+    "lil-gui": "^0.20.0",
     "three": "^0.169.0"
   }
 }
