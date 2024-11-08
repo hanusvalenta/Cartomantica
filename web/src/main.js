@@ -114,35 +114,78 @@ function toggleEditMode() {
     editBtn.classList.toggle('active', isEditMode);
 }
 
+let objectData = [];
+
+async function loadObjectData() {
+    try {
+        const response = await fetch('objects.json');
+        objectData = await response.json();
+    } catch (error) {
+        console.error('Failed to load object data:', error);
+    }
+}
+
+loadObjectData();
+
 function previewSelectedObject() {
     const selectedObjectType = document.getElementById('objectSelect').value;
-    let geometry;
+    let geometry, material;
 
-    switch (selectedObjectType) {
-        case 'cube':
-            geometry = new THREE.BoxGeometry(2, 2, 2);
-            break;
-        case 'sphere':
-            geometry = new THREE.SphereGeometry(1.5, 32, 32);
-            break;
-        case 'cone':
-            geometry = new THREE.ConeGeometry(1, 3, 32);
-            break;
-        case 'cylinder':
-            geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
-            break;
-        case 'torus':
-            geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
-            break;
-        default:
-            return;
+    const objectFromJson = objectData.find((obj) => obj.type === selectedObjectType);
+
+    if (objectFromJson) {
+        switch (objectFromJson.geometry) {
+            case 'BoxGeometry':
+                geometry = new THREE.BoxGeometry(...objectFromJson.parameters);
+                break;
+            case 'SphereGeometry':
+                geometry = new THREE.SphereGeometry(...objectFromJson.parameters);
+                break;
+            case 'ConeGeometry':
+                geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
+                break;
+            case 'CylinderGeometry':
+                geometry = new THREE.CylinderGeometry(...objectFromJson.parameters);
+                break;
+            case 'TorusGeometry':
+                geometry = new THREE.TorusGeometry(...objectFromJson.parameters);
+                break;
+            default:
+                console.warn(`Unknown geometry type: ${objectFromJson.geometry}`);
+                return;
+        }
+
+        const color = objectFromJson.color || Math.random() * 0xffffff;
+        material = new THREE.MeshStandardMaterial({ color });
+    } 
+    else 
+    {
+        switch (selectedObjectType) {
+            case 'cube':
+                geometry = new THREE.BoxGeometry(2, 2, 2);
+                break;
+            case 'sphere':
+                geometry = new THREE.SphereGeometry(1.5, 32, 32);
+                break;
+            case 'cone':
+                geometry = new THREE.ConeGeometry(1, 3, 32);
+                break;
+            case 'cylinder':
+                geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
+                break;
+            case 'torus':
+                geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
+                break;
+            default:
+                return;
+        }
+
+        material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
     }
 
-    const material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
     temporaryObject = new THREE.Mesh(geometry, material);
     temporaryObject.castShadow = true;
     temporaryObject.position.set(0, 1, 0);
-
     scene.add(temporaryObject);
     document.getElementById('objectList').style.display = 'none';
 }
