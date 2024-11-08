@@ -108,6 +108,15 @@ document.addEventListener('keyup', onKeyUp, false);
 
 window.addEventListener('DOMContentLoaded', populateObjectList);
 
+document.addEventListener('click', (event) => {
+    const objectList = document.getElementById('objectList');
+    const spawnBtn = document.getElementById('spawnBtn');
+    
+    if (!objectList.contains(event.target) && event.target !== spawnBtn) {
+        objectList.style.display = 'none';
+    }
+});
+
 function toggleEditMode() {
     isEditMode = !isEditMode;
     selectedObject = null;
@@ -167,7 +176,6 @@ function previewSelectedObject() {
         temporaryObject.position.set(0, 1, 0);
         scene.add(temporaryObject);
 
-        // Handle additional details (e.g., legs, trunk, supports)
         if (objectFromJson.details) {
             addDetailsToObject(objectFromJson.details, temporaryObject);
         }
@@ -182,7 +190,7 @@ async function populateObjectList() {
         const objects = await response.json();
 
         const objectSelect = document.getElementById('objectSelect');
-        objectSelect.innerHTML = ''; // Clear existing options
+        objectSelect.innerHTML = '';
 
         objects.forEach((object) => {
             const option = document.createElement('option');
