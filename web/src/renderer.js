@@ -30,6 +30,8 @@ directionalLight.shadow.camera.top = 15;
 directionalLight.shadow.camera.bottom = -15;
 scene.add(directionalLight);
 
+const cameraSpeed = 0.5;
+
 function createDotTexture() {
     const canvas = document.createElement('canvas');
     const size = 256;
@@ -199,14 +201,34 @@ function onKeyDown(event) {
         if (event.key === '+') selectedObject.scale.multiplyScalar(1.1);
         if (event.key === '-') selectedObject.scale.multiplyScalar(0.9);
     }
+
+    if (event.key === 'w' || event.key === 'W') cameraMovement.forward = true;
+    if (event.key === 's' || event.key === 'S') cameraMovement.backward = true;
+    if (event.key === 'a' || event.key === 'A') cameraMovement.left = true;
+    if (event.key === 'd' || event.key === 'D') cameraMovement.right = true;
 }
 
 function onKeyUp(event) {
     if (event.key === 'r' || event.key === 't') rotationSpeed = 0;
+
+    if (event.key === 'w' || event.key === 'W') cameraMovement.forward = false;
+    if (event.key === 's' || event.key === 'S') cameraMovement.backward = false;
+    if (event.key === 'a' || event.key === 'A') cameraMovement.left = false;
+    if (event.key === 'd' || event.key === 'D') cameraMovement.right = false;
+}
+
+function updateCameraPosition() {
+    if (cameraMovement.forward) camera.position.z -= cameraSpeed;
+    if (cameraMovement.backward) camera.position.z += cameraSpeed;
+    if (cameraMovement.left) camera.position.x -= cameraSpeed;
+    if (cameraMovement.right) camera.position.x += cameraSpeed;
 }
 
 function animate() {
     requestAnimationFrame(animate);
+
+    updateCameraPosition();
+
     if (isEditMode && selectedObject) selectedObject.rotation.y += rotationSpeed;
     renderer.render(scene, camera);
 }
