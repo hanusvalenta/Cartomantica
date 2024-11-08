@@ -30,7 +30,7 @@ directionalLight.shadow.camera.top = 15;
 directionalLight.shadow.camera.bottom = -15;
 scene.add(directionalLight);
 
-const cameraSpeed = 0.5;
+const cameraSpeed = 0.1;
 
 function createDotTexture() {
     const canvas = document.createElement('canvas');
@@ -78,14 +78,18 @@ let isDraggingObject = false;
 let temporaryObject = null;
 let rotationSpeed = 0;
 
-const acceleration = 0.05;
+const acceleration = 0.01;
 const friction = 0.05;
+const zoomSpeed = 0.01;
 const velocity = { x: 0, z: 0 };
+const zoomVelocity = { zoom: 0 };
 const cameraMovement = {
     forward: false,
     backward: false,
     left: false,
     right: false,
+    zoomIn: false,
+    zoomOut: false,
 };
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
@@ -210,6 +214,9 @@ function onKeyDown(event) {
     if (event.key === 's' || event.key === 'S') cameraMovement.backward = true;
     if (event.key === 'a' || event.key === 'A') cameraMovement.left = true;
     if (event.key === 'd' || event.key === 'D') cameraMovement.right = true;
+
+    if (event.key === 'q' || event.key === 'Q') cameraMovement.zoomIn = true;
+    if (event.key === 'e' || event.key === 'E') cameraMovement.zoomOut = true;
 }
 
 function onKeyUp(event) {
@@ -219,6 +226,9 @@ function onKeyUp(event) {
     if (event.key === 's' || event.key === 'S') cameraMovement.backward = false;
     if (event.key === 'a' || event.key === 'A') cameraMovement.left = false;
     if (event.key === 'd' || event.key === 'D') cameraMovement.right = false;
+
+    if (event.key === 'q' || event.key === 'Q') cameraMovement.zoomIn = false;
+    if (event.key === 'e' || event.key === 'E') cameraMovement.zoomOut = false;
 }
 
 function updateCameraPosition() {
@@ -232,6 +242,14 @@ function updateCameraPosition() {
 
     camera.position.x += velocity.x;
     camera.position.z += velocity.z;
+
+    if (cameraMovement.zoomIn) zoomVelocity.zoom -= zoomSpeed;
+    if (cameraMovement.zoomOut) zoomVelocity.zoom += zoomSpeed;
+
+    zoomVelocity.zoom *= (1 - friction);
+
+    camera.zoom = Math.max(0.5, Math.min(camera.zoom + zoomVelocity.zoom, 5));
+    camera.updateProjectionMatrix();
 }
 
 function animate() {
