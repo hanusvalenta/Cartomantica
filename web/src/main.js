@@ -134,6 +134,7 @@ function previewSelectedObject() {
     const objectFromJson = objectData.find((obj) => obj.type === selectedObjectType);
 
     if (objectFromJson) {
+        // Create the main geometry
         switch (objectFromJson.geometry) {
             case 'BoxGeometry':
                 geometry = new THREE.BoxGeometry(...objectFromJson.parameters);
@@ -147,6 +148,9 @@ function previewSelectedObject() {
             case 'ConeGeometry':
                 geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
                 break;
+            case 'DodecahedronGeometry':
+                geometry = new THREE.DodecahedronGeometry(...objectFromJson.parameters);
+                break;
             case 'TorusGeometry':
                 geometry = new THREE.TorusGeometry(...objectFromJson.parameters);
                 break;
@@ -155,37 +159,50 @@ function previewSelectedObject() {
                 return;
         }
 
-        const color = objectFromJson.color || Math.random() * 0xffffff;
-        material = new THREE.MeshStandardMaterial({ color });
-    } else {
-        switch (selectedObjectType) {
-            case 'cube':
-                geometry = new THREE.BoxGeometry(2, 2, 2);
-                break;
-            case 'sphere':
-                geometry = new THREE.SphereGeometry(1.5, 32, 32);
-                break;
-            case 'cone':
-                geometry = new THREE.ConeGeometry(1, 3, 32);
-                break;
-            case 'cylinder':
-                geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
-                break;
-            case 'torus':
-                geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
-                break;
-            default:
-                return;
+        material = new THREE.MeshStandardMaterial({ color: objectFromJson.color || Math.random() * 0xffffff });
+        temporaryObject = new THREE.Mesh(geometry, material);
+        temporaryObject.castShadow = true;
+        temporaryObject.position.set(0, 1, 0);
+        scene.add(temporaryObject);
+
+        // Handle additional details (e.g., legs, trunk, supports)
+        if (objectFromJson.details) {
+            addDetailsToObject(objectFromJson.details, temporaryObject);
         }
 
-        material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+        document.getElementById('objectList').style.display = 'none';
+    }
+}
+
+function addDetailsToObject(details, parentObject) {
+    details.legsPositions?.forEach((position) => {
+        const legGeometry = new THREE.CylinderGeometry(...details.legsParameters);
+        const legMaterial = new THREE.MeshStandardMaterial({ color: details.legsColor });
+        const leg = new THREE.Mesh(legGeometry, legMaterial);
+        leg.position.set(...position);
+        leg.castShadow = true;
+        parentObject.add(leg);
+    });
+
+    if (details.trunkGeometry) {
+        const trunkGeometry = new THREE.CylinderGeometry(...details.trunkParameters);
+        const trunkMaterial = new THREE.MeshStandardMaterial({ color: details.trunkColor });
+        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+        trunk.position.set(0, -1.5, 0);
+        trunk.castShadow = true;
+        parentObject.add(trunk);
     }
 
-    temporaryObject = new THREE.Mesh(geometry, material);
-    temporaryObject.castShadow = true;
-    temporaryObject.position.set(0, 1, 0);
-    scene.add(temporaryObject);
-    document.getElementById('objectList').style.display = 'none';
+    if (details.supportPositions) {
+        details.supportPositions.forEach((position) => {
+            const supportGeometry = new THREE.CylinderGeometry(...details.supportParameters);
+            const supportMaterial = new THREE.MeshStandardMaterial({ color: details.supportColor });
+            const support = new THREE.Mesh(supportGeometry, supportMaterial);
+            support.position.set(...position);
+            support.castShadow = true;
+            parentObject.add(support);
+        });
+    }
 }
 
 function placeObject() {
