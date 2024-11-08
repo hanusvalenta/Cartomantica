@@ -13,9 +13,39 @@ camera.position.set(0, 50, 0);
 camera.lookAt(0, 0, 0);
 
 // Set up the renderer
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows for better visuals
 document.body.appendChild(renderer.domElement);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(10, 20, 10);
+directionalLight.castShadow = true;
+
+// Configure shadow properties for the directional light
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 100;
+directionalLight.shadow.camera.left = -15;
+directionalLight.shadow.camera.right = 15;
+directionalLight.shadow.camera.top = 15;
+directionalLight.shadow.camera.bottom = -15;
+
+scene.add(directionalLight);
+
+// Plane with shadows
+const planeGeometry = new THREE.PlaneGeometry(200, 200);
+const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x999999 });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2;
+plane.receiveShadow = true;
+scene.add(plane);
 
 // Raycaster for object selection and mouse interaction
 const raycaster = new THREE.Raycaster();
@@ -32,54 +62,6 @@ const maxSpeed = 0.5;
 const friction = 0.1;
 const velocity = { x: 0, z: 0 };
 const cameraMovement = { forward: false, backward: false, left: false, right: false, zoomIn: false, zoomOut: false };
-
-// Create a canvas texture with random gray dots
-function createDotTexture() {
-    const canvas = document.createElement('canvas');
-    const size = 256;
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-
-    // Fill with white
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, size, size);
-
-    // Add random gray dots
-    const numberOfDots = 1000;
-    ctx.fillStyle = 'rgba(128, 128, 128, 0.3)';
-
-    for (let i = 0; i < numberOfDots; i++) {
-        const x = Math.random() * size;
-        const y = Math.random() * size;
-        const radius = Math.random() * 0.5 + 0.5;
-
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(20, 20);
-    return texture;
-}
-
-// Create a large plane with the dot texture
-const planeGeometry = new THREE.PlaneGeometry(200, 200);
-const texture = createDotTexture();
-const planeMaterial = new THREE.MeshBasicMaterial({
-    map: texture,
-    side: THREE.DoubleSide
-});
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -Math.PI / 2;
-scene.add(plane);
-
-// Variables to handle camera dragging
-let isDragging = false;
-let previousMousePosition = { x: 0, y: 0 };
 
 // Add event listeners for buttons
 document.getElementById('spawnBtn').addEventListener('click', () => {
@@ -102,68 +84,19 @@ document.addEventListener('keyup', onKeyUp, false);
 
 function toggleEditMode() {
     isEditMode = !isEditMode;
-    selectedObject = null; // Clear any selected object when toggling mode
+    selectedObject = null;
 
-    // Toggle active class on the Edit button
     const editBtn = document.getElementById('editBtn');
-    if (isEditMode) {
-        editBtn.classList.add('active');
-        console.log("Edit mode enabled. Click on an object to edit.");
-    } else {
-        editBtn.classList.remove('active');
-        console.log("Edit mode disabled.");
-    }
+    editBtn.classList.toggle('active', isEditMode);
 }
 
 function previewSelectedObject() {
     const selectedObjectType = document.getElementById('objectSelect').value;
-
     let geometry;
+
     switch (selectedObjectType) {
         case 'cube':
             geometry = new THREE.BoxGeometry(2, 2, 2);
-            break;
-        case 'tree':
-            // Tree made of a cylinder trunk and cone foliage
-            geometry = new THREE.Group();
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 2), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
-            const foliage = new THREE.Mesh(new THREE.ConeGeometry(1, 2, 16), new THREE.MeshBasicMaterial({ color: 0x228B22 }));
-            foliage.position.y = 1.5;
-            geometry.add(trunk);
-            geometry.add(foliage);
-            break;
-        case 'rock':
-            // Rock using an irregular shape
-            geometry = new THREE.DodecahedronGeometry(1);
-            geometry.applyMatrix4(new THREE.Matrix4().makeScale(1, 0.7, 1)); // Flatten for a rock shape
-            break;
-        case 'wall':
-            // Wall using a stretched box
-            geometry = new THREE.BoxGeometry(0.5, 2, 4);
-            break;
-        case 'table':
-            // Table using a thin box and cylinder legs
-            geometry = new THREE.Group();
-            const tableTop = new THREE.Mesh(new THREE.BoxGeometry(3, 0.2, 2), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
-            const legMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
-            const legs = [];
-            for (let i = 0; i < 4; i++) {
-                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1), legMaterial);
-                leg.position.set((i < 2 ? 1.3 : -1.3), -0.6, (i % 2 === 0 ? 0.8 : -0.8));
-                legs.push(leg);
-                geometry.add(leg);
-            }
-            geometry.add(tableTop);
-            break;
-        case 'chair':
-            // Chair using a box seat and box backrest
-            geometry = new THREE.Group();
-            const seat = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 1), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
-            const backrest = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.2), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
-            backrest.position.y = 0.6;
-            backrest.position.z = -0.4;
-            geometry.add(seat);
-            geometry.add(backrest);
             break;
         case 'sphere':
             geometry = new THREE.SphereGeometry(1.5, 32, 32);
@@ -182,29 +115,23 @@ function previewSelectedObject() {
             return;
     }
 
-    const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-    if (selectedObjectType === 'tree' || selectedObjectType === 'table' || selectedObjectType === 'chair') {
-        temporaryObject = geometry;
-    } else {
-        temporaryObject = new THREE.Mesh(geometry, material);
-    }
-    temporaryObject.position.set(0, 1, 0); // Position it slightly above the plane
+    const material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+    temporaryObject = new THREE.Mesh(geometry, material);
+    temporaryObject.castShadow = true;
+    temporaryObject.position.set(0, 1, 0);
 
     scene.add(temporaryObject);
-    document.getElementById('objectList').style.display = 'none'; // Hide the menu after spawning
+    document.getElementById('objectList').style.display = 'none';
 }
 
 function placeObject() {
     if (temporaryObject) {
-        // Detach the temporary object from cursor tracking
         temporaryObject = null;
     }
 }
 
-// Update object position under the cursor when moving the mouse
 function onMouseMove(event) {
     if (temporaryObject) {
-        // Update mouse coordinates for raycasting
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -212,13 +139,11 @@ function onMouseMove(event) {
         const intersects = raycaster.intersectObject(plane);
 
         if (intersects.length > 0) {
-            const intersectPoint = intersects[0].point;
-            temporaryObject.position.set(intersectPoint.x, 1, intersectPoint.z); // Move object to mouse position
+            temporaryObject.position.copy(intersects[0].point).setY(1);
         }
     }
 
     if (isEditMode && selectedObject && isDraggingObject) {
-        // Update mouse coordinates for raycasting
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -226,24 +151,8 @@ function onMouseMove(event) {
         const intersects = raycaster.intersectObject(plane);
 
         if (intersects.length > 0) {
-            const intersectPoint = intersects[0].point;
-            selectedObject.position.set(intersectPoint.x, 1, intersectPoint.z); // Move selected object to mouse position
+            selectedObject.position.copy(intersects[0].point).setY(1);
         }
-    }
-
-    if (isDragging) {
-        // Handle camera dragging as before
-        const deltaMove = {
-            x: event.clientX - previousMousePosition.x,
-            y: event.clientY - previousMousePosition.y,
-        };
-
-        const panSpeed = 0.1;
-        camera.position.x -= deltaMove.x * panSpeed;
-        camera.position.z -= deltaMove.y * panSpeed;
-
-        previousMousePosition.x = event.clientX;
-        previousMousePosition.y = event.clientY;
     }
 }
 
@@ -254,39 +163,20 @@ function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
 
-    if (temporaryObject && event.button === 0) { // Left click to place object
+    if (temporaryObject && event.button === 0) {
         placeObject();
-    } else if (intersects.length > 0) {
-        const intersectedObject = intersects[0].object;
-        if (intersectedObject !== plane && isEditMode) {
-            // Select object for editing if in edit mode
-            selectedObject = intersectedObject;
-            isDraggingObject = true;
-            console.log("Selected object:", selectedObject);
-        }
-    }
-
-    if (event.button === 2) { // Right click for panning
-        isDragging = true;
-        previousMousePosition.x = event.clientX;
-        previousMousePosition.y = event.clientY;
+    } else if (intersects.length > 0 && isEditMode) {
+        selectedObject = intersects[0].object;
+        isDraggingObject = true;
     }
 }
 
-function onMouseUp(event) {
-    if (isEditMode && selectedObject && event.button === 0) {
-        // Finalize dragging the object on mouse up
-        isDraggingObject = false;
-    }
-    isDragging = false;
+function onMouseUp() {
+    isDraggingObject = false;
 }
 
 function onMouseWheel(event) {
-    const zoomSpeed = 0.005; // Smaller zoom speed for smoother zooming
-    const targetZoom = camera.zoom + event.deltaY * -zoomSpeed; // Calculate target zoom level
-
-    // Limit the zoom levels for smoother experience
-    camera.zoom = Math.max(0.1, Math.min(5, targetZoom)); // Min zoom level of 0.1 and max of 5
+    camera.zoom = Math.max(0.1, Math.min(camera.zoom + event.deltaY * -0.005, 5));
     camera.updateProjectionMatrix();
 }
 
@@ -294,131 +184,24 @@ function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
     camera.left = -10 * aspect;
     camera.right = 10 * aspect;
-    camera.top = 10;
-    camera.bottom = -10;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Keyboard event handlers
 function onKeyDown(event) {
     if (isEditMode && selectedObject) {
-        switch (event.key) {
-            case 'r': // Rotate clockwise
-                rotationSpeed = 0.02;
-                break;
-            case 't': // Rotate counterclockwise
-                rotationSpeed = -0.02;
-                break;
-            case '+': // Scale up
-                selectedObject.scale.multiplyScalar(1.1);
-                break;
-            case '-': // Scale down
-                selectedObject.scale.multiplyScalar(0.9);
-                break;
-        }
-    }
-
-    switch (event.key) {
-        case 'w':
-        case 'W':
-            cameraMovement.forward = true;
-            break;
-        case 's':
-        case 'S':
-            cameraMovement.backward = true;
-            break;
-        case 'a':
-        case 'A':
-            cameraMovement.left = true;
-            break;
-        case 'd':
-        case 'D':
-            cameraMovement.right = true;
-            break;
-        case 'e':
-        case 'E':
-            cameraMovement.zoomIn = true;
-            break;
-        case 'q':
-        case 'Q':
-            cameraMovement.zoomOut = true;
-            break;
+        if (event.key === 'r') rotationSpeed = 0.02;
+        if (event.key === 't') rotationSpeed = -0.02;
     }
 }
 
 function onKeyUp(event) {
-    if (event.key === 'r' || event.key === 't') {
-        rotationSpeed = 0; // Stop rotation when key is released
-    }
-
-    switch (event.key) {
-        case 'w':
-        case 'W':
-            cameraMovement.forward = false;
-            break;
-        case 's':
-        case 'S':
-            cameraMovement.backward = false;
-            break;
-        case 'a':
-        case 'A':
-            cameraMovement.left = false;
-            break;
-        case 'd':
-        case 'D':
-            cameraMovement.right = false;
-            break;
-        case 'e':
-        case 'E':
-            cameraMovement.zoomIn = false;
-            break;
-        case 'q':
-        case 'Q':
-            cameraMovement.zoomOut = false;
-            break;
-    }
+    if (event.key === 'r' || event.key === 't') rotationSpeed = 0;
 }
 
-// Update camera position with smooth movement
-function updateCameraPosition() {
-    // Accelerate movement in each direction based on keys pressed
-    if (cameraMovement.forward) velocity.z = Math.max(velocity.z - acceleration, -maxSpeed);
-    if (cameraMovement.backward) velocity.z = Math.min(velocity.z + acceleration, maxSpeed);
-    if (cameraMovement.left) velocity.x = Math.max(velocity.x - acceleration, -maxSpeed);
-    if (cameraMovement.right) velocity.x = Math.min(velocity.x + acceleration, maxSpeed);
-
-    // Apply friction to gradually slow down when keys are released
-    if (!cameraMovement.forward && !cameraMovement.backward) velocity.z *= 1 - friction;
-    if (!cameraMovement.left && !cameraMovement.right) velocity.x *= 1 - friction;
-
-    // Update camera position
-    camera.position.x += velocity.x;
-    camera.position.z += velocity.z;
-
-    // Zoom in and out based on E and Q keys
-    const zoomSpeed = 0.02;
-    if (cameraMovement.zoomIn) {
-        camera.zoom = Math.min(camera.zoom + zoomSpeed, 5); // Limit max zoom level
-    }
-    if (cameraMovement.zoomOut) {
-        camera.zoom = Math.max(camera.zoom - zoomSpeed, 0.1); // Limit min zoom level
-    }
-    camera.updateProjectionMatrix();
-}
-
-// Update object rotation with smooth effect
-function updateObjectRotation() {
-    if (isEditMode && selectedObject && rotationSpeed !== 0) {
-        selectedObject.rotation.y += rotationSpeed;
-    }
-}
-
-// Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    updateCameraPosition(); // Update camera position based on key input
-    updateObjectRotation(); // Smoothly rotate the selected object
+    if (isEditMode && selectedObject) selectedObject.rotation.y += rotationSpeed;
     renderer.render(scene, camera);
 }
 
