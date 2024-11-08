@@ -1,4 +1,3 @@
-// index.js
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
@@ -9,7 +8,7 @@ function createWindow() {
         icon: path.join(__dirname, 'icon.png'),
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false, // Needed for integrating three.js without security concerns
+            contextIsolation: false,
             preload: path.join(__dirname, 'preload.js')
         }
     });
@@ -17,7 +16,6 @@ function createWindow() {
     win.loadFile('./web/src/index.html');
     win.maximize();
 
-    // Hide the menu bar
     win.setMenuBarVisibility(false);
 }
 
