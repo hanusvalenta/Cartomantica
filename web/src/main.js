@@ -30,8 +30,6 @@ directionalLight.shadow.camera.top = 15;
 directionalLight.shadow.camera.bottom = -15;
 scene.add(directionalLight);
 
-const cameraSpeed = 0.1;
-
 function createDotTexture() {
     const canvas = document.createElement('canvas');
     const size = 256;
@@ -78,6 +76,7 @@ let isDraggingObject = false;
 let temporaryObject = null;
 let rotationSpeed = 0;
 
+const cameraSpeed = 0.1;
 const acceleration = 0.01;
 const friction = 0.05;
 const zoomSpeed = 0.01;
