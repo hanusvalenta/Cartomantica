@@ -16,18 +16,16 @@ camera.lookAt(0, 0, 0);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Softer shadows for better visuals
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft ambient light
+const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(10, 20, 10);
 directionalLight.castShadow = true;
-
-// Configure shadow properties for the directional light
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
 directionalLight.shadow.camera.near = 0.5;
@@ -36,25 +34,58 @@ directionalLight.shadow.camera.left = -15;
 directionalLight.shadow.camera.right = 15;
 directionalLight.shadow.camera.top = 15;
 directionalLight.shadow.camera.bottom = -15;
-
 scene.add(directionalLight);
 
-// Plane with shadows
-const planeGeometry = new THREE.PlaneGeometry(200, 200);
-const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x999999 });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -Math.PI / 2;
-plane.receiveShadow = true;
-scene.add(plane);
+// Dot texture creation for the ground
+function createDotTexture() {
+    const canvas = document.createElement('canvas');
+    const size = 256;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Fill with white
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, size, size);
+
+    // Add random gray dots
+    const numberOfDots = 1000;
+    ctx.fillStyle = 'rgba(128, 128, 128, 0.3)';
+
+    for (let i = 0; i < numberOfDots; i++) {
+        const x = Math.random() * size;
+        const y = Math.random() * size;
+        const radius = Math.random() * 0.5 + 0.5;
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(20, 20);
+    return texture;
+}
+
+// Create the ground plane with the dot texture
+const groundTexture = createDotTexture();
+const groundMaterial = new THREE.MeshStandardMaterial({ map: groundTexture });
+const groundGeometry = new THREE.PlaneGeometry(200, 200);
+const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
 
 // Raycaster for object selection and mouse interaction
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
 let isEditMode = false;
-let temporaryObject = null; // Temporary object for placement preview
-let isDraggingObject = false; // Track if an object is being dragged
-let rotationSpeed = 0; // Track rotation speed for smooth rotation
+let temporaryObject = null;
+let isDraggingObject = false;
+let rotationSpeed = 0;
 
 // Camera movement variables
 const acceleration = 0.02;
@@ -136,22 +167,10 @@ function onMouseMove(event) {
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(plane);
+        const intersects = raycaster.intersectObject(ground);
 
         if (intersects.length > 0) {
             temporaryObject.position.copy(intersects[0].point).setY(1);
-        }
-    }
-
-    if (isEditMode && selectedObject && isDraggingObject) {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(plane);
-
-        if (intersects.length > 0) {
-            selectedObject.position.copy(intersects[0].point).setY(1);
         }
     }
 }
