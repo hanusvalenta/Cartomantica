@@ -2,13 +2,11 @@ const THREE = require('three');
 
 // Set up the scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xffffff); // White background
+scene.background = new THREE.Color(0xffffff);
 
-// Set up the camera (top-down orthographic camera)
+// Set up the camera
 const aspect = window.innerWidth / window.innerHeight;
-const camera = new THREE.OrthographicCamera(
-  -10 * aspect, 10 * aspect, 10, -10, 0.1, 1000
-);
+const camera = new THREE.OrthographicCamera(-10 * aspect, 10 * aspect, 10, -10, 0.1, 1000);
 camera.position.set(0, 50, 0);
 camera.lookAt(0, 0, 0);
 
@@ -36,7 +34,7 @@ directionalLight.shadow.camera.top = 15;
 directionalLight.shadow.camera.bottom = -15;
 scene.add(directionalLight);
 
-// Dot texture creation for the ground
+// Ground with dot texture
 function createDotTexture() {
     const canvas = document.createElement('canvas');
     const size = 256;
@@ -44,11 +42,9 @@ function createDotTexture() {
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // Fill with white
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, size, size);
 
-    // Add random gray dots
     const numberOfDots = 1000;
     ctx.fillStyle = 'rgba(128, 128, 128, 0.3)';
 
@@ -69,7 +65,6 @@ function createDotTexture() {
     return texture;
 }
 
-// Create the ground plane with the dot texture
 const groundTexture = createDotTexture();
 const groundMaterial = new THREE.MeshStandardMaterial({ map: groundTexture });
 const groundGeometry = new THREE.PlaneGeometry(200, 200);
@@ -78,13 +73,13 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Raycaster for object selection and mouse interaction
+// Raycaster and mouse interaction
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
 let isEditMode = false;
-let temporaryObject = null;
 let isDraggingObject = false;
+let temporaryObject = null;
 let rotationSpeed = 0;
 
 // Camera movement variables
@@ -101,15 +96,13 @@ document.getElementById('spawnBtn').addEventListener('click', () => {
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
 document.getElementById('confirmSpawn').addEventListener('click', previewSelectedObject);
 
-// Add event listeners for mouse interactions
+// Mouse and keyboard events
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
 document.addEventListener('mousedown', onMouseDown, false);
 document.addEventListener('mousemove', onMouseMove, false);
 document.addEventListener('mouseup', onMouseUp, false);
 document.addEventListener('wheel', onMouseWheel, false);
 window.addEventListener('resize', onWindowResize, false);
-
-// Add event listeners for keyboard controls
 document.addEventListener('keydown', onKeyDown, false);
 document.addEventListener('keyup', onKeyUp, false);
 
@@ -142,7 +135,6 @@ function previewSelectedObject() {
             geometry = new THREE.TorusGeometry(1.5, 0.5, 16, 100);
             break;
         default:
-            console.warn('Unknown object type:', selectedObjectType);
             return;
     }
 
@@ -162,13 +154,18 @@ function placeObject() {
 }
 
 function onMouseMove(event) {
-    if (temporaryObject) {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        raycaster.setFromCamera(mouse, camera);
+    raycaster.setFromCamera(mouse, camera);
+
+    if (isDraggingObject && selectedObject) {
         const intersects = raycaster.intersectObject(ground);
-
+        if (intersects.length > 0) {
+            selectedObject.position.copy(intersects[0].point).setY(1);
+        }
+    } else if (temporaryObject) {
+        const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             temporaryObject.position.copy(intersects[0].point).setY(1);
         }
@@ -176,15 +173,12 @@ function onMouseMove(event) {
 }
 
 function onMouseDown(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
 
     if (temporaryObject && event.button === 0) {
         placeObject();
-    } else if (intersects.length > 0 && isEditMode) {
+    } else if (isEditMode && intersects.length > 0) {
         selectedObject = intersects[0].object;
         isDraggingObject = true;
     }
