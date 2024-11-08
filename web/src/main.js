@@ -91,6 +91,25 @@ const cameraMovement = {
     zoomOut: false,
 };
 
+const toggleMenuBtn = document.getElementById('toggleMenuBtn');
+const menuContainer = document.getElementById('menuContainer');
+
+let isMenuVisible = true;
+
+toggleMenuBtn.addEventListener('click', () => {
+    isMenuVisible = !isMenuVisible;
+
+    if (isMenuVisible) {
+        menuContainer.classList.remove('hidden');
+        toggleMenuBtn.classList.remove('show');
+        toggleMenuBtn.textContent = '☰';
+    } else {
+        menuContainer.classList.add('hidden');
+        toggleMenuBtn.classList.add('show');
+        toggleMenuBtn.textContent = '→';
+    }
+});
+
 document.getElementById('spawnBtn').addEventListener('click', () => {
     document.getElementById('objectList').style.display = 'block';
 });
@@ -111,7 +130,7 @@ window.addEventListener('DOMContentLoaded', populateObjectList);
 document.addEventListener('click', (event) => {
     const objectList = document.getElementById('objectList');
     const spawnBtn = document.getElementById('spawnBtn');
-    
+
     if (!objectList.contains(event.target) && event.target !== spawnBtn) {
         objectList.style.display = 'none';
     }

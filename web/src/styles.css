@@ -1,10 +1,9 @@
-/* Minimalist and Monochrome styles.css */
 body {
     margin: 0;
     overflow: hidden;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f9f9f9; /* Light gray background */
-    color: #333; /* Dark gray text color */
+    background-color: #f9f9f9;
+    color: #333;
 }
 
 #ui {
@@ -16,10 +15,10 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    background-color: rgba(255, 255, 255, 0.9); /* Slightly opaque white */
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 4px;
     padding: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 button {
@@ -35,16 +34,16 @@ button {
 }
 
 button:hover {
-    background-color: #d5d5d5; /* Slightly darker gray on hover */
+    background-color: #d5d5d5;
     transform: scale(1.02);
 }
 
 button:active {
-    background-color: #bdbdbd; /* Darker gray when clicked */
+    background-color: #bdbdbd;
 }
 
 button.active {
-    background-color: #b3b3b3; /* Darker gray for active state */
+    background-color: #b3b3b3;
 }
 
 #objectList {
@@ -63,7 +62,7 @@ button.active {
 #objectList label {
     font-weight: bold;
     margin-bottom: 5px;
-    color: #555; /* Slightly lighter gray for labels */
+    color: #555;
 }
 
 #objectList select {
@@ -86,4 +85,39 @@ button.active {
 
 #confirmSpawn:active {
     background-color: #bdbdbd;
+}
+
+#menuContainer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background-color: #333;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.3s ease;
+}
+
+#menuContainer.hidden {
+    transform: translateX(-100%);
+}
+
+#toggleMenuBtn {
+    position: fixed;
+    left: 0;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #444;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#toggleMenuBtn.show {
+    left: 10px;
 }
