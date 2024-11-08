@@ -141,11 +141,11 @@ function previewSelectedObject() {
             case 'SphereGeometry':
                 geometry = new THREE.SphereGeometry(...objectFromJson.parameters);
                 break;
-            case 'ConeGeometry':
-                geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
-                break;
             case 'CylinderGeometry':
                 geometry = new THREE.CylinderGeometry(...objectFromJson.parameters);
+                break;
+            case 'ConeGeometry':
+                geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
                 break;
             case 'TorusGeometry':
                 geometry = new THREE.TorusGeometry(...objectFromJson.parameters);
@@ -157,9 +157,7 @@ function previewSelectedObject() {
 
         const color = objectFromJson.color || Math.random() * 0xffffff;
         material = new THREE.MeshStandardMaterial({ color });
-    } 
-    else 
-    {
+    } else {
         switch (selectedObjectType) {
             case 'cube':
                 geometry = new THREE.BoxGeometry(2, 2, 2);
