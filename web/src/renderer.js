@@ -205,6 +205,8 @@ function onKeyDown(event) {
     if (isEditMode && selectedObject) {
         if (event.key === 'r') rotationSpeed = 0.02;
         if (event.key === 't') rotationSpeed = -0.02;
+        if (event.key === '+') selectedObject.scale.multiplyScalar(1.1);
+        if (event.key === '-') selectedObject.scale.multiplyScalar(0.9);
     }
 }
 
