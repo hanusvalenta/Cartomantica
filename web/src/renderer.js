@@ -78,11 +78,15 @@ let isDraggingObject = false;
 let temporaryObject = null;
 let rotationSpeed = 0;
 
-const acceleration = 0.02;
-const maxSpeed = 0.5;
-const friction = 0.1;
+const acceleration = 0.05;
+const friction = 0.05;
 const velocity = { x: 0, z: 0 };
-const cameraMovement = { forward: false, backward: false, left: false, right: false, zoomIn: false, zoomOut: false };
+const cameraMovement = {
+    forward: false,
+    backward: false,
+    left: false,
+    right: false,
+};
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
     document.getElementById('objectList').style.display = 'block';
@@ -218,10 +222,16 @@ function onKeyUp(event) {
 }
 
 function updateCameraPosition() {
-    if (cameraMovement.forward) camera.position.z -= cameraSpeed;
-    if (cameraMovement.backward) camera.position.z += cameraSpeed;
-    if (cameraMovement.left) camera.position.x -= cameraSpeed;
-    if (cameraMovement.right) camera.position.x += cameraSpeed;
+    if (cameraMovement.forward) velocity.z -= acceleration;
+    if (cameraMovement.backward) velocity.z += acceleration;
+    if (cameraMovement.left) velocity.x -= acceleration;
+    if (cameraMovement.right) velocity.x += acceleration;
+
+    velocity.x *= (1 - friction);
+    velocity.z *= (1 - friction);
+
+    camera.position.x += velocity.x;
+    camera.position.z += velocity.z;
 }
 
 function animate() {
