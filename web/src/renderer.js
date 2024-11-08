@@ -1,23 +1,19 @@
 const THREE = require('three');
 
-// Set up the scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-// Set up the camera
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new THREE.OrthographicCamera(-10 * aspect, 10 * aspect, 10, -10, 0.1, 1000);
 camera.position.set(0, 50, 0);
 camera.lookAt(0, 0, 0);
 
-// Set up the renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-// Lighting
 const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
 scene.add(ambientLight);
 
@@ -34,7 +30,6 @@ directionalLight.shadow.camera.top = 15;
 directionalLight.shadow.camera.bottom = -15;
 scene.add(directionalLight);
 
-// Ground with dot texture
 function createDotTexture() {
     const canvas = document.createElement('canvas');
     const size = 256;
@@ -73,7 +68,6 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Raycaster and mouse interaction
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
@@ -82,21 +76,18 @@ let isDraggingObject = false;
 let temporaryObject = null;
 let rotationSpeed = 0;
 
-// Camera movement variables
 const acceleration = 0.02;
 const maxSpeed = 0.5;
 const friction = 0.1;
 const velocity = { x: 0, z: 0 };
 const cameraMovement = { forward: false, backward: false, left: false, right: false, zoomIn: false, zoomOut: false };
 
-// Add event listeners for buttons
 document.getElementById('spawnBtn').addEventListener('click', () => {
     document.getElementById('objectList').style.display = 'block';
 });
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
 document.getElementById('confirmSpawn').addEventListener('click', previewSelectedObject);
 
-// Mouse and keyboard events
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
 document.addEventListener('mousedown', onMouseDown, false);
 document.addEventListener('mousemove', onMouseMove, false);
