@@ -106,26 +106,5 @@
         "geometry": "TorusGeometry",
         "parameters": [1.5, 0.5, 16, 100],
         "color": "#FF69B4"
-    },
-    {
-        "type": "bed",
-        "geometry": "BoxGeometry",
-        "parameters": [5, 0.5, 3],
-        "color": "#D2691E",
-        "details": {
-            "legsGeometry": "CylinderGeometry",
-            "legsParameters": [0.2, 0.2, 1, 16],
-            "legsColor": "#8B4513",
-            "legsPositions": [
-                [-2.2, 0.5, -1.2],
-                [2.2, 0.5, -1.2],
-                [-2.2, 0.5, 1.2],
-                [2.2, 0.5, 1.2]
-            ],
-            "headboardGeometry": "BoxGeometry",
-            "headboardParameters": [5, 1.5, 0.2],
-            "headboardColor": "#8B4513",
-            "headboardPosition": [0, 0.75, -1.5]
-        }
-    }    
+    }   
 ]
