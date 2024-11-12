@@ -205,12 +205,18 @@ function previewSelectedObject() {
         }
 
         material = new THREE.MeshStandardMaterial({ color: objectFromJson.color || Math.random() * 0xffffff });
-        temporaryObject = new THREE.Mesh(geometry, material);
+
+        temporaryObject = new THREE.Group();
+        const mainMesh = new THREE.Mesh(geometry, material);
+        mainMesh.castShadow = true;
+        temporaryObject.add(mainMesh);
+
         temporaryObject.castShadow = true;
         temporaryObject.position.set(0, 1, 0);
         scene.add(temporaryObject);
 
-        createHandDrawnOutline(temporaryObject);
+        const outline = createHandDrawnOutline(mainMesh);
+        temporaryObject.add(outline);
 
         if (objectFromJson.details) {
             addDetailsToObject(objectFromJson.details, temporaryObject);
@@ -304,7 +310,7 @@ function onMouseDown(event) {
     if (temporaryObject && event.button === 0) {
         placeObject();
     } else if (isEditMode && intersects.length > 0) {
-        selectedObject = intersects[0].object;
+        selectedObject = intersects[0].object.parent || intersects[0].object;
         isDraggingObject = true;
     }
 }
@@ -328,11 +334,11 @@ function onWindowResize() {
 
 function onKeyDown(event) {
     if (isEditMode && selectedObject) {
-        if (event.key === 'r') rotationSpeed = 0.02;
-        if (event.key === 't') rotationSpeed = -0.02;
+        if (event.key === 'r') selectedObject.rotation.y += 0.02;
+        if (event.key === 't') selectedObject.rotation.y -= 0.02;
         if (event.key === '+') selectedObject.scale.multiplyScalar(1.1);
         if (event.key === '-') selectedObject.scale.multiplyScalar(0.9);
-    }
+    }    
 
     if (event.key === 'w' || event.key === 'W') cameraMovement.forward = true;
     if (event.key === 's' || event.key === 'S') cameraMovement.backward = true;
