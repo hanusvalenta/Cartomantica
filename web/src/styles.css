@@ -123,3 +123,8 @@ button.active {
     left: 10px;
     transform: translateX(5px);
 }
+
+#deleteBtn.active {
+    background-color: #f44336;
+    color: white;
+}

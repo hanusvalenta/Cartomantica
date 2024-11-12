@@ -162,6 +162,23 @@ async function loadObjectData() {
     }
 }
 
+let isDeleteMode = false;
+const deleteBtn = document.getElementById('deleteBtn');
+
+deleteBtn.addEventListener('click', () => {
+    isDeleteMode = !isDeleteMode;
+    isEditMode = false;
+
+    deleteBtn.classList.toggle('active', isDeleteMode);
+    editBtn.classList.remove('active');
+
+    if (isDeleteMode) {
+        console.log('Delete mode activated.');
+    } else {
+        console.log('Delete mode deactivated.');
+    }
+});
+
 loadObjectData();
 
 function createHandDrawnOutline(mesh, color = 0x000000, thickness = 1) {
@@ -325,6 +342,17 @@ function onMouseDown(event) {
 
     if (temporaryObject && event.button === 0) {
         placeObject();
+    } else if (isEditMode && intersects.length > 0) {
+        const intersectedObject = intersects[0].object;
+        if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
+        selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
+        isDraggingObject = true;
+    } else if (isDeleteMode && intersects.length > 0) {
+        const intersectedObject = intersects[0].object;
+        const objectToDelete = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
+
+        scene.remove(objectToDelete);
+        console.log('Object deleted:', objectToDelete);
     } else if (isEditMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
