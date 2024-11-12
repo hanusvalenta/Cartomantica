@@ -107,7 +107,7 @@ button.active {
 
 #toggleMenuBtn {
     position: fixed;
-    left: 0;
+    left: 5px;
     top: 10px;
     width: 30px;
     height: 30px;
@@ -116,8 +116,10 @@ button.active {
     border: none;
     cursor: pointer;
     z-index: 1000;
+    transition: transform 0.3s ease;
 }
 
 #toggleMenuBtn.show {
     left: 10px;
+    transform: translateX(5px);
 }
