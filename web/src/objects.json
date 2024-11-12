@@ -3,95 +3,116 @@
         "type": "cube",
         "geometry": "BoxGeometry",
         "parameters": [2, 2, 2],
-        "color": "#ff0000"
+        "color": "#FFFFFF"
     },
     {
         "type": "sphere",
         "geometry": "SphereGeometry",
         "parameters": [1.5, 32, 32],
-        "color": "#00ff00"
+        "color": "#FFFFFF"
     },
     {
         "type": "cylinder",
         "geometry": "CylinderGeometry",
         "parameters": [1, 1, 3, 64],
-        "color": "#0000ff"
+        "color": "#FFFFFF"
     },
     {
         "type": "tree",
         "geometry": "ConeGeometry",
         "parameters": [1.5, 5, 32],
-        "color": "#228B22",
+        "color": "#FFFFFF",
         "details": {
             "trunkGeometry": "CylinderGeometry",
             "trunkParameters": [0.5, 0.5, 2, 16],
-            "trunkColor": "#8B4513"
+            "trunkColor": "#FFFFFF",
+            "leafGeometry": "SphereGeometry",
+            "leafParameters": [2, 16, 16],
+            "leafColor": "#FFFFFF",
+            "leafPosition": [0, 3.5, 0]
         }
     },
     {
         "type": "rock",
         "geometry": "DodecahedronGeometry",
         "parameters": [1.2, 0],
-        "color": "#808080"
+        "color": "#FFFFFF",
+        "details": {
+            "roughness": 1,
+            "displacementScale": 0.2
+        }
     },
     {
         "type": "wall",
         "geometry": "BoxGeometry",
         "parameters": [12, 3, 0.5],
-        "color": "#A9A9A9"
+        "color": "#FFFFFF",
+        "details": {
+            "brickPattern": true,
+            "crackDetail": 0.1
+        }
     },
     {
         "type": "table",
         "geometry": "BoxGeometry",
         "parameters": [3, 0.2, 2],
-        "color": "#654321",
+        "color": "#FFFFFF",
         "details": {
             "legsGeometry": "CylinderGeometry",
-            "legsParameters": [0.1, 0.1, 1, 16],
-            "legsColor": "#654321",
+            "legsParameters": [0.15, 0.15, 1, 16],
+            "legsColor": "#FFFFFF",
             "legsPositions": [
                 [-1.3, 0.5, -0.8],
                 [1.3, 0.5, -0.8],
                 [-1.3, 0.5, 0.8],
                 [1.3, 0.5, 0.8]
-            ]
+            ],
+            "surfaceTexture": "woodGrain"
         }
     },
     {
         "type": "chair",
         "geometry": "BoxGeometry",
         "parameters": [1, 0.2, 1],
-        "color": "#8B4513",
+        "color": "#FFFFFF",
         "details": {
             "backrestGeometry": "BoxGeometry",
             "backrestParameters": [1, 1.5, 0.2],
-            "backrestColor": "#8B4513",
+            "backrestColor": "#FFFFFF",
             "backrestPosition": [0, 1.3, -0.4],
             "legsGeometry": "CylinderGeometry",
             "legsParameters": [0.1, 0.1, 0.8, 16],
-            "legsColor": "#8B4513",
+            "legsColor": "#FFFFFF",
             "legsPositions": [
                 [-0.4, 0.4, -0.4],
                 [0.4, 0.4, -0.4],
                 [-0.4, 0.4, 0.4],
                 [0.4, 0.4, 0.4]
-            ]
+            ],
+            "seatCushion": true
         }
     },
     {
         "type": "bridge",
         "geometry": "BoxGeometry",
         "parameters": [10, 0.5, 3],
-        "color": "#8B0000",
+        "color": "#FFFFFF",
         "details": {
             "supportGeometry": "CylinderGeometry",
             "supportParameters": [0.3, 0.3, 1.5, 16],
-            "supportColor": "#8B4513",
+            "supportColor": "#FFFFFF",
             "supportPositions": [
                 [-4.5, -0.75, -1.4],
                 [4.5, -0.75, -1.4],
                 [-4.5, -0.75, 1.4],
                 [4.5, -0.75, 1.4]
+            ],
+            "railingsGeometry": "BoxGeometry",
+            "railingsParameters": [10, 0.2, 0.2],
+            "railingsColor": "#FFFFFF",
+            "railingsPositions": [
+                [0, 0.5, 1.5],
+                [0, 0.5, -1.5]
             ]
         }
     },
@@ -99,12 +120,83 @@
         "type": "cone",
         "geometry": "ConeGeometry",
         "parameters": [1, 3, 32],
-        "color": "#FFD700"
+        "color": "#FFFFFF"
     },
     {
         "type": "torus",
         "geometry": "TorusGeometry",
         "parameters": [1.5, 0.5, 16, 100],
-        "color": "#FF69B4"
-    }   
+        "color": "#FFFFFF"
+    },
+    {
+        "type": "house",
+        "geometry": "BoxGeometry",
+        "parameters": [5, 4, 5],
+        "color": "#FFFFFF",
+        "details": {
+            "roofGeometry": "ConeGeometry",
+            "roofParameters": [5.5, 2.5, 4],
+            "roofColor": "#FFFFFF",
+            "roofPosition": [0, 3.5, 0],
+            "doorGeometry": "BoxGeometry",
+            "doorParameters": [1, 2, 0.1],
+            "doorColor": "#FFFFFF",
+            "doorPosition": [0, 1, 2.5],
+            "windowGeometry": "BoxGeometry",
+            "windowParameters": [1, 1, 0.1],
+            "windowColor": "#FFFFFF",
+            "windowPositions": [
+                [-1.5, 1.5, 2.5],
+                [1.5, 1.5, 2.5]
+            ]
+        }
+    },
+    {
+        "type": "river",
+        "geometry": "BoxGeometry",
+        "parameters": [20, 0.1, 5],
+        "color": "#FFFFFF",
+        "details": {
+            "waveEffect": true,
+            "depth": 0.3
+        }
+    },
+    {
+        "type": "fence",
+        "geometry": "BoxGeometry",
+        "parameters": [0.1, 1, 10],
+        "color": "#FFFFFF",
+        "details": {
+            "postGeometry": "CylinderGeometry",
+            "postParameters": [0.2, 0.2, 1, 16],
+            "postColor": "#FFFFFF",
+            "postPositions": [
+                [-4.5, 0.5, 0],
+                [-2.5, 0.5, 0],
+                [0, 0.5, 0],
+                [2.5, 0.5, 0],
+                [4.5, 0.5, 0]
+            ],
+            "railGeometry": "BoxGeometry",
+            "railParameters": [10, 0.1, 0.2],
+            "railColor": "#FFFFFF",
+            "railPosition": [0, 0.7, 0]
+        }
+    },
+    {
+        "type": "well",
+        "geometry": "CylinderGeometry",
+        "parameters": [1.2, 1.2, 1.5, 32],
+        "color": "#FFFFFF",
+        "details": {
+            "coverGeometry": "CircleGeometry",
+            "coverParameters": [1.2, 32],
+            "coverColor": "#FFFFFF",
+            "coverPosition": [0, 0.75, 0],
+            "bucketGeometry": "SphereGeometry",
+            "bucketParameters": [0.4, 16, 16],
+            "bucketColor": "#FFFFFF",
+            "bucketPosition": [0.6, 0.75, 0]
+        }
+    }
 ]
