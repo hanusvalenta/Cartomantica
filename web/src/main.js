@@ -157,6 +157,22 @@ async function loadObjectData() {
 
 loadObjectData();
 
+function createHandDrawnOutline(mesh, color = 0x000000, thickness = 1) {
+    const edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
+    const outlineMaterial = new THREE.LineBasicMaterial({
+        color: color,
+        linewidth: thickness,
+    });
+
+    const outline = new THREE.LineSegments(edgesGeometry, outlineMaterial);
+
+    outline.scale.set(1.01, 1.01, 1.01);
+
+    mesh.add(outline);
+
+    return outline;
+}
+
 function previewSelectedObject() {
     const selectedObjectType = document.getElementById('objectSelect').value;
     let geometry, material;
@@ -164,7 +180,6 @@ function previewSelectedObject() {
     const objectFromJson = objectData.find((obj) => obj.type === selectedObjectType);
 
     if (objectFromJson) {
-        // Create the main geometry
         switch (objectFromJson.geometry) {
             case 'BoxGeometry':
                 geometry = new THREE.BoxGeometry(...objectFromJson.parameters);
@@ -194,6 +209,8 @@ function previewSelectedObject() {
         temporaryObject.castShadow = true;
         temporaryObject.position.set(0, 1, 0);
         scene.add(temporaryObject);
+
+        createHandDrawnOutline(temporaryObject);
 
         if (objectFromJson.details) {
             addDetailsToObject(objectFromJson.details, temporaryObject);
