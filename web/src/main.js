@@ -240,33 +240,35 @@ async function populateObjectList() {
 }
 
 function addDetailsToObject(details, parentObject) {
-    details.legsPositions?.forEach((position) => {
-        const legGeometry = new THREE.CylinderGeometry(...details.legsParameters);
-        const legMaterial = new THREE.MeshStandardMaterial({ color: details.legsColor });
-        const leg = new THREE.Mesh(legGeometry, legMaterial);
-        leg.position.set(...position);
-        leg.castShadow = true;
-        parentObject.add(leg);
-    });
+    for (const [key, value] of Object.entries(details)) {
+        if (key.endsWith('Geometry')) {
+            const geometryType = value;
+            const parametersKey = key.replace('Geometry', 'Parameters');
+            const colorKey = key.replace('Geometry', 'Color');
+            const positionKey = key.replace('Geometry', 'Position') || `${key.replace('Geometry', 'Positions')}`;
 
-    if (details.trunkGeometry) {
-        const trunkGeometry = new THREE.CylinderGeometry(...details.trunkParameters);
-        const trunkMaterial = new THREE.MeshStandardMaterial({ color: details.trunkColor });
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.set(0, -1.5, 0);
-        trunk.castShadow = true;
-        parentObject.add(trunk);
-    }
+            const geometry = new THREE[geometryType](...details[parametersKey]);
+            const material = new THREE.MeshStandardMaterial({ color: details[colorKey] || Math.random() * 0xffffff });
+            const mesh = new THREE.Mesh(geometry, material);
 
-    if (details.supportPositions) {
-        details.supportPositions.forEach((position) => {
-            const supportGeometry = new THREE.CylinderGeometry(...details.supportParameters);
-            const supportMaterial = new THREE.MeshStandardMaterial({ color: details.supportColor });
-            const support = new THREE.Mesh(supportGeometry, supportMaterial);
-            support.position.set(...position);
-            support.castShadow = true;
-            parentObject.add(support);
-        });
+            if (details[positionKey]) {
+                if (Array.isArray(details[positionKey][0])) {
+                    details[positionKey].forEach((pos) => {
+                        const clone = mesh.clone();
+                        clone.position.set(...pos);
+                        clone.castShadow = true;
+                        parentObject.add(clone);
+                    });
+                } else {
+                    mesh.position.set(...details[positionKey]);
+                    mesh.castShadow = true;
+                    parentObject.add(mesh);
+                }
+            } else {
+                mesh.position.set(0, 0, 0);
+                parentObject.add(mesh);
+            }
+        }
     }
 }
 
