@@ -78,6 +78,10 @@ let rotationSpeed = 0;
 const maxRotationSpeed = 0.1;
 const rotationAcceleration = 0.01;
 const rotationFriction = 0.1;
+let scalingVelocity = 0;
+const maxScalingSpeed = 0.05;
+const scalingAcceleration = 0.01;
+const scalingFriction = 0.1;
 
 const cameraSpeed = 0.1;
 const acceleration = 0.01;
@@ -348,8 +352,8 @@ function onWindowResize() {
 
 function onKeyDown(event) {
     if (isEditMode && selectedObject) {
-        if (event.key === '+') selectedObject.scale.multiplyScalar(1.1);
-        if (event.key === '-') selectedObject.scale.multiplyScalar(0.9);
+        if (event.key === '+') scalingVelocity = Math.min(scalingVelocity + scalingAcceleration, maxScalingSpeed);
+        if (event.key === '-') scalingVelocity = Math.max(scalingVelocity - scalingAcceleration, -maxScalingSpeed);
         if (event.key === 'r') rotationSpeed = Math.min(rotationSpeed + rotationAcceleration, maxRotationSpeed);
         if (event.key === 't') rotationSpeed = Math.max(rotationSpeed - rotationAcceleration, -maxRotationSpeed);
     }
@@ -365,6 +369,7 @@ function onKeyDown(event) {
 
 function onKeyUp(event) {
     if (event.key === 'r' || event.key === 't') rotationSpeed = 0;
+    if (event.key === '+' || event.key === '-') scalingVelocity = 0;
 
     if (event.key === 'w' || event.key === 'W') cameraMovement.forward = false;
     if (event.key === 's' || event.key === 'S') cameraMovement.backward = false;
@@ -404,6 +409,13 @@ function animate() {
     if (isEditMode && selectedObject) {
         rotationSpeed *= (1 - rotationFriction);
         selectedObject.rotation.y += rotationSpeed;
+
+        scalingVelocity *= (1 - scalingFriction);
+        const newScale = selectedObject.scale.x + scalingVelocity;
+
+        if (newScale > 0.1) {
+            selectedObject.scale.set(newScale, newScale, newScale);
+        }
     }
 
     renderer.render(scene, camera);
