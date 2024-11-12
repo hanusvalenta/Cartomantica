@@ -100,8 +100,10 @@ const cameraMovement = {
 
 const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
+const deleteBtn = document.getElementById('deleteBtn');
 
 let isMenuVisible = true;
+let isDeleteMode = false;
 
 toggleMenuBtn.addEventListener('click', () => {
     isMenuVisible = !isMenuVisible;
@@ -143,9 +145,26 @@ document.addEventListener('click', (event) => {
     }
 });
 
+deleteBtn.addEventListener('click', () => {
+    isDeleteMode = !isDeleteMode;
+    isEditMode = false;
+
+    deleteBtn.classList.toggle('active', isDeleteMode);
+    editBtn.classList.remove('active');
+
+    if (isDeleteMode) {
+        console.log('Delete mode activated.');
+    } else {
+        console.log('Delete mode deactivated.');
+    }
+});
+
 function toggleEditMode() {
     isEditMode = !isEditMode;
     selectedObject = null;
+    isDeleteMode = false;
+
+    deleteBtn.classList.remove('active');
 
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
@@ -161,23 +180,6 @@ async function loadObjectData() {
         console.error('Failed to load object data:', error);
     }
 }
-
-let isDeleteMode = false;
-const deleteBtn = document.getElementById('deleteBtn');
-
-deleteBtn.addEventListener('click', () => {
-    isDeleteMode = !isDeleteMode;
-    isEditMode = false;
-
-    deleteBtn.classList.toggle('active', isDeleteMode);
-    editBtn.classList.remove('active');
-
-    if (isDeleteMode) {
-        console.log('Delete mode activated.');
-    } else {
-        console.log('Delete mode deactivated.');
-    }
-});
 
 loadObjectData();
 
