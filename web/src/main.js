@@ -167,6 +167,8 @@ function createHandDrawnOutline(mesh, color = 0x000000, thickness = 1) {
     const outline = new THREE.LineSegments(edgesGeometry, outlineMaterial);
 
     outline.scale.set(1.01, 1.01, 1.01);
+    outline.renderOrder = 1;
+    outline.raycast = () => {};
 
     mesh.add(outline);
 
@@ -318,6 +320,7 @@ function onMouseDown(event) {
         placeObject();
     } else if (isEditMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
+        if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
         selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
         isDraggingObject = true;
     }
