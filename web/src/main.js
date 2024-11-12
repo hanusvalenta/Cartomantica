@@ -75,6 +75,9 @@ let isEditMode = false;
 let isDraggingObject = false;
 let temporaryObject = null;
 let rotationSpeed = 0;
+const maxRotationSpeed = 0.1;
+const rotationAcceleration = 0.01;
+const rotationFriction = 0.1;
 
 const cameraSpeed = 0.1;
 const acceleration = 0.01;
@@ -345,11 +348,11 @@ function onWindowResize() {
 
 function onKeyDown(event) {
     if (isEditMode && selectedObject) {
-        if (event.key === 'r') selectedObject.rotation.y += 0.02;
-        if (event.key === 't') selectedObject.rotation.y -= 0.02;
         if (event.key === '+') selectedObject.scale.multiplyScalar(1.1);
         if (event.key === '-') selectedObject.scale.multiplyScalar(0.9);
-    }    
+        if (event.key === 'r') rotationSpeed = Math.min(rotationSpeed + rotationAcceleration, maxRotationSpeed);
+        if (event.key === 't') rotationSpeed = Math.max(rotationSpeed - rotationAcceleration, -maxRotationSpeed);
+    }
 
     if (event.key === 'w' || event.key === 'W') cameraMovement.forward = true;
     if (event.key === 's' || event.key === 'S') cameraMovement.backward = true;
@@ -398,7 +401,11 @@ function animate() {
 
     updateCameraPosition();
 
-    if (isEditMode && selectedObject) selectedObject.rotation.y += rotationSpeed;
+    if (isEditMode && selectedObject) {
+        rotationSpeed *= (1 - rotationFriction);
+        selectedObject.rotation.y += rotationSpeed;
+    }
+
     renderer.render(scene, camera);
 }
 
