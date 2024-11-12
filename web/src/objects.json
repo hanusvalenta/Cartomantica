@@ -198,5 +198,21 @@
             "bucketColor": "#FFFFFF",
             "bucketPosition": [0.6, 0.75, 0]
         }
-    }
+    },
+    {
+        "type": "lamp",
+        "geometry": "CylinderGeometry",
+        "parameters": [0.5, 0.5, 2, 16],
+        "color": "#FFFF00",
+        "details": {
+            "baseGeometry": "CylinderGeometry",
+            "baseParameters": [1, 1, 0.5, 32],
+            "baseColor": "#888888",
+            "basePosition": [0, -1, 0],
+            "shadeGeometry": "ConeGeometry",
+            "shadeParameters": [1.5, 2, 16],
+            "shadeColor": "#FFFFFF",
+            "shadePosition": [0, 1.5, 0]
+        }
+    }    
 ]
