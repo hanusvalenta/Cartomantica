@@ -263,15 +263,27 @@ function addDetailsToObject(details, parentObject) {
                         const clone = mesh.clone();
                         clone.position.set(...pos);
                         clone.castShadow = true;
+
+                        const outline = createHandDrawnOutline(clone);
+                        clone.add(outline);
+
                         parentObject.add(clone);
                     });
                 } else {
                     mesh.position.set(...details[positionKey]);
                     mesh.castShadow = true;
+
+                    const outline = createHandDrawnOutline(mesh);
+                    mesh.add(outline);
+
                     parentObject.add(mesh);
                 }
             } else {
                 mesh.position.set(0, 0, 0);
+
+                const outline = createHandDrawnOutline(mesh);
+                mesh.add(outline);
+
                 parentObject.add(mesh);
             }
         }
