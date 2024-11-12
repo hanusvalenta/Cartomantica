@@ -193,12 +193,6 @@ function previewSelectedObject() {
             case 'ConeGeometry':
                 geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
                 break;
-            case 'DodecahedronGeometry':
-                geometry = new THREE.DodecahedronGeometry(...objectFromJson.parameters);
-                break;
-            case 'TorusGeometry':
-                geometry = new THREE.TorusGeometry(...objectFromJson.parameters);
-                break;
             default:
                 console.warn(`Unknown geometry type: ${objectFromJson.geometry}`);
                 return;
@@ -209,14 +203,15 @@ function previewSelectedObject() {
         temporaryObject = new THREE.Group();
         const mainMesh = new THREE.Mesh(geometry, material);
         mainMesh.castShadow = true;
+        
+        const outline = createHandDrawnOutline(mainMesh);
+
         temporaryObject.add(mainMesh);
+        temporaryObject.add(outline);
 
         temporaryObject.castShadow = true;
         temporaryObject.position.set(0, 1, 0);
         scene.add(temporaryObject);
-
-        const outline = createHandDrawnOutline(mainMesh);
-        temporaryObject.add(outline);
 
         if (objectFromJson.details) {
             addDetailsToObject(objectFromJson.details, temporaryObject);
@@ -317,12 +312,13 @@ function onMouseMove(event) {
 
 function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children);
+    const intersects = raycaster.intersectObjects(scene.children, true);
 
     if (temporaryObject && event.button === 0) {
         placeObject();
     } else if (isEditMode && intersects.length > 0) {
-        selectedObject = intersects[0].object.parent || intersects[0].object;
+        const intersectedObject = intersects[0].object;
+        selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
         isDraggingObject = true;
     }
 }
