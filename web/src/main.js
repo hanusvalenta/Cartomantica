@@ -396,12 +396,13 @@ function onMouseMove(event) {
 
     raycaster.setFromCamera(mouse, camera);
 
-    if (isDraggingObject && selectedObject) {
+    if (isDraggingObject && selectedObject && selectedObject.name !== "defaultGround") {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             selectedObject.position.copy(intersects[0].point).setY(1);
         }
-    } else if (temporaryObject) {
+    }    
+    else if (temporaryObject) {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             temporaryObject.position.copy(intersects[0].point).setY(1);
@@ -416,10 +417,15 @@ function onMouseDown(event) {
     if (temporaryObject && event.button === 0) {
         placeObject();
     } 
-    else if (isEditMode && intersects.length > 0) 
-    {
+    if (isEditMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
+        
+        if (intersectedObject.name === "defaultGround") {
+            console.log("Ground is unmovable.");
+            return;
+        }
+    
         selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
         isDraggingObject = true;
     } 
@@ -434,13 +440,6 @@ function onMouseDown(event) {
     
         scene.remove(objectToDelete);
         console.log('Object deleted:', objectToDelete);
-    }
-    else if (isEditMode && intersects.length > 0) 
-    {
-        const intersectedObject = intersects[0].object;
-        if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
-        selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
-        isDraggingObject = true;
     }
 }
 
