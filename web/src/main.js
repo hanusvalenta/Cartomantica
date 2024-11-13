@@ -3,11 +3,6 @@ import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-const ipcRenderer = window.electronAPI.ipcRenderer;
-const app = window.electronAPI.app;
-const BrowserWindow = window.electronAPI.BrowserWindow;
-const ipcMain = window.electronAPI.ipcMain;
-
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new THREE.OrthographicCamera(-10 * aspect, 10 * aspect, 10, -10, 0.1, 1000);
 camera.position.set(0, 50, 0);
@@ -149,11 +144,6 @@ document.getElementById('createBtn').addEventListener('click', () => {
 document.getElementById('loadBtn').addEventListener('click', () => {
     console.log('Load feature will be implemented later.');
 });
-
-document.getElementById("endBtn").addEventListener("click", () => {
-    var window = remote.getCurrentWindow();
-    window.close();
-}); 
 
 document.addEventListener('click', (event) => {
     const objectList = document.getElementById('objectList');
