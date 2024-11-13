@@ -102,6 +102,7 @@ const cameraMovement = {
 const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
 const deleteBtn = document.getElementById('deleteBtn');
+const daytimeSlider = document.getElementById('daytimeSlider');
 
 let isMenuVisible = true;
 let isDeleteMode = false;
@@ -328,6 +329,32 @@ function placeObject() {
         temporaryObject = null;
     }
 }
+
+function updateLighting(time) {
+    const normalizedTime = time / 24;
+    
+    ambientLight.intensity = 0.3 + Math.sin(normalizedTime * Math.PI) * 0.7;
+
+    directionalLight.intensity = 0.5 + Math.sin(normalizedTime * Math.PI) * 1.5;
+
+    if (time < 6 || time > 18) {
+        directionalLight.color.setHSL(0.6, 0.5, 0.5);
+    } else if (time < 9 || time > 15) {
+        directionalLight.color.setHSL(0.1, 0.8, 0.8);
+    } else {
+        directionalLight.color.setHSL(0.15, 0.3, 1);
+    }
+
+    const angle = normalizedTime * Math.PI * 2;
+    directionalLight.position.set(Math.cos(angle) * 20, Math.sin(angle) * 20 + 10, Math.sin(angle) * 20);
+}
+
+updateLighting(daytimeSlider.value);
+
+daytimeSlider.addEventListener('input', (event) => {
+    const time = parseFloat(event.target.value);
+    updateLighting(time);
+});
 
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
