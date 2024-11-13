@@ -66,6 +66,7 @@ const groundGeometry = new THREE.PlaneGeometry(200, 200);
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
+ground.name = "defaultGround";
 scene.add(ground);
 
 const raycaster = new THREE.Raycaster();
@@ -353,18 +354,28 @@ function onMouseDown(event) {
 
     if (temporaryObject && event.button === 0) {
         placeObject();
-    } else if (isEditMode && intersects.length > 0) {
+    } 
+    else if (isEditMode && intersects.length > 0) 
+    {
         const intersectedObject = intersects[0].object;
         if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
         selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
         isDraggingObject = true;
-    } else if (isDeleteMode && intersects.length > 0) {
+    } 
+    if (isDeleteMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         const objectToDelete = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
-
+    
+        if (objectToDelete.name === "defaultGround") {
+            console.log("Default ground cannot be deleted.");
+            return;
+        }
+    
         scene.remove(objectToDelete);
         console.log('Object deleted:', objectToDelete);
-    } else if (isEditMode && intersects.length > 0) {
+    }
+    else if (isEditMode && intersects.length > 0) 
+    {
         const intersectedObject = intersects[0].object;
         if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
         selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
