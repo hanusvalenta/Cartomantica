@@ -150,9 +150,10 @@ document.getElementById('loadBtn').addEventListener('click', () => {
     console.log('Load feature will be implemented later.');
 });
 
-document.getElementById('endBtn').addEventListener('click', () => {
-    window.electronAPI.closeApp();
-});
+document.getElementById("endBtn").addEventListener("click", () => {
+    var window = remote.getCurrentWindow();
+    window.close();
+}); 
 
 document.addEventListener('click', (event) => {
     const objectList = document.getElementById('objectList');
