@@ -8,3 +8,11 @@ window.addEventListener('DOMContentLoaded', () => {
       replaceText(`${dependency}-version`, process.versions[dependency])
     }
   })
+
+const { contextBridge, ipcRenderer } = require('electron');
+
+window.electronAPI = { ipcRenderer };
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    closeApp: () => ipcRenderer.invoke('close-app'),
+});
