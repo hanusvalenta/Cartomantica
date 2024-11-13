@@ -456,6 +456,9 @@ function animate() {
 
     updateCameraPosition();
 
+    directionalLight.position.copy(camera.position);
+    directionalLight.position.y += 10;
+
     if (isEditMode && selectedObject) {
         rotationSpeed *= (1 - rotationFriction);
         selectedObject.rotation.y += rotationSpeed;
