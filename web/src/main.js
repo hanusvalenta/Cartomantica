@@ -4,7 +4,9 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 const ipcRenderer = window.electronAPI.ipcRenderer;
-const { app, BrowserWindow, ipcMain } = window.electronAPI;
+const app = window.electronAPI.app;
+const BrowserWindow = window.electronAPI.BrowserWindow;
+const ipcMain = window.electronAPI.ipcMain;
 
 const aspect = window.innerWidth / window.innerHeight;
 const camera = new THREE.OrthographicCamera(-10 * aspect, 10 * aspect, 10, -10, 0.1, 1000);

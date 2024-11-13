@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-window.electronAPI = { ipcRenderer };
+window.electronAPI = { ipcRenderer, contextBridge };
 
 contextBridge.exposeInMainWorld('electronAPI', {
     closeApp: () => ipcRenderer.invoke('close-app'),
