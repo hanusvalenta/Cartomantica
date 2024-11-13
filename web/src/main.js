@@ -390,6 +390,79 @@ daytimeSlider.addEventListener('input', (event) => {
     targetSliderValue = parseFloat(event.target.value);
 });
 
+let spawnedObjects = [];
+let spawnInterval = null;
+let isSpawning = false;
+let spawnTimer = null;
+
+function spawnRandomObject() {
+    if (!objectData.length) return;
+
+    const randomIndex = Math.floor(Math.random() * objectData.length);
+    const objectFromJson = objectData[randomIndex];
+    let geometry, material;
+
+    switch (objectFromJson.geometry) {
+        case 'BoxGeometry':
+            geometry = new THREE.BoxGeometry(...objectFromJson.parameters);
+            break;
+        case 'SphereGeometry':
+            geometry = new THREE.SphereGeometry(...objectFromJson.parameters);
+            break;
+        case 'CylinderGeometry':
+            geometry = new THREE.CylinderGeometry(...objectFromJson.parameters);
+            break;
+        case 'ConeGeometry':
+            geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
+            break;
+        default:
+            console.warn(`Unknown geometry type: ${objectFromJson.geometry}`);
+            return;
+    }
+
+    material = new THREE.MeshStandardMaterial({ color: objectFromJson.color || Math.random() * 0xffffff });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.position.set(
+        (Math.random() - 0.5) * 30,
+        1,
+        (Math.random() - 0.5) * 30
+    );
+
+    scene.add(mesh);
+    spawnedObjects.push(mesh);
+}
+
+function startSpawning() {
+    if (isSpawning) return;
+    isSpawning = true;
+    spawnInterval = setInterval(spawnRandomObject, 200);
+
+    spawnTimer = setTimeout(stopSpawning, 20000);
+}
+
+function stopSpawning() {
+    if (spawnInterval) {
+        clearInterval(spawnInterval);
+        spawnInterval = null;
+    }
+    isSpawning = false;
+}
+
+function stopSpawningAndDelete() {
+    stopSpawning();
+
+    spawnedObjects.forEach((obj) => {
+        scene.remove(obj);
+    });
+    spawnedObjects = [];
+}
+
+startSpawning();
+
+document.getElementById('createBtn').addEventListener('click', stopSpawningAndDelete);
+
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
