@@ -330,15 +330,13 @@ function placeObject() {
     }
 }
 
-// Define color stops for different times of day
-const nightColor = new THREE.Color(0x4040ff); // Cool blue for night
-const sunriseColor = new THREE.Color(0xffa07a); // Warm orange for sunrise/sunset
-const dayColor = new THREE.Color(0xffffff); // White for midday
+const nightColor = new THREE.Color(0x4040ff);
+const sunriseColor = new THREE.Color(0xffa07a);
+const dayColor = new THREE.Color(0xffffff);
 
 let currentSliderValue = parseFloat(daytimeSlider.value);
 let targetSliderValue = currentSliderValue;
 
-// Enhanced shadow settings
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 4096;
 directionalLight.shadow.mapSize.height = 4096;
@@ -349,52 +347,42 @@ directionalLight.shadow.camera.right = 100;
 directionalLight.shadow.camera.top = 100;
 directionalLight.shadow.camera.bottom = -100;
 
-// Smooth transition function using interpolation
 function updateSunPosition(deltaTime) {
-    // Interpolate towards the target slider value
     currentSliderValue += (targetSliderValue - currentSliderValue) * deltaTime;
 
     const normalizedTime = currentSliderValue / 24;
     const sunAngle = normalizedTime * Math.PI * 2;
 
-    // Calculate sun position (east-to-west arc)
     const sunX = Math.cos(sunAngle) * 100;
     const sunY = Math.max(Math.sin(sunAngle) * 80, 5);
     const sunZ = Math.sin(sunAngle) * 100;
 
     directionalLight.position.set(sunX, sunY, sunZ);
-    directionalLight.target.position.set(0, 0, 0); // Ensure the light points towards the center of the scene
+    directionalLight.target.position.set(0, 0, 0);
 
-    // Light intensity interpolation
     const dayIntensity = 2.0;
     const nightIntensity = 0.1;
     const sunriseIntensity = 1.0;
 
     let intensity;
     if (currentSliderValue < 6) {
-        // Night to sunrise
         intensity = THREE.MathUtils.lerp(nightIntensity, sunriseIntensity, currentSliderValue / 6);
         directionalLight.color.lerpColors(nightColor, sunriseColor, currentSliderValue / 6);
     } else if (currentSliderValue < 12) {
-        // Sunrise to midday
         intensity = THREE.MathUtils.lerp(sunriseIntensity, dayIntensity, (currentSliderValue - 6) / 6);
         directionalLight.color.lerpColors(sunriseColor, dayColor, (currentSliderValue - 6) / 6);
     } else if (currentSliderValue < 18) {
-        // Midday to sunset
         intensity = THREE.MathUtils.lerp(dayIntensity, sunriseIntensity, (currentSliderValue - 12) / 6);
         directionalLight.color.lerpColors(dayColor, sunriseColor, (currentSliderValue - 12) / 6);
     } else {
-        // Sunset to night
         intensity = THREE.MathUtils.lerp(sunriseIntensity, nightIntensity, (currentSliderValue - 18) / 6);
         directionalLight.color.lerpColors(sunriseColor, nightColor, (currentSliderValue - 18) / 6);
     }
 
     directionalLight.intensity = intensity;
 
-    // Smooth transition for ambient light
     ambientLight.intensity = 0.1 + Math.max(sunY / 160, 0.05);
 
-    // Update shadow camera to reflect changes
     directionalLight.shadow.camera.updateProjectionMatrix();
 }
 
