@@ -69,6 +69,11 @@ ground.receiveShadow = true;
 ground.name = "defaultGround";
 scene.add(ground);
 
+let spawnedObjects = [];
+let spawnInterval = null;
+let isSpawning = false;
+let spawnTimer = null;
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
@@ -389,11 +394,6 @@ function updateSunPosition(deltaTime) {
 daytimeSlider.addEventListener('input', (event) => {
     targetSliderValue = parseFloat(event.target.value);
 });
-
-let spawnedObjects = [];
-let spawnInterval = null;
-let isSpawning = false;
-let spawnTimer = null;
 
 function spawnRandomObject() {
     if (!objectData.length) return;
