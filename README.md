@@ -2,10 +2,11 @@ Small D&D map maker made in electron and three js
 
 # Věci na udělání
 
-* start menu s načítáním map
+* načítání map
 * lepší tvary
 * edit ukazatele
 * další nástroje (fence tool atd...)
+* vypnout program esc
 
 # Pro Kryštofa
 
