@@ -165,16 +165,13 @@ button.active {
 }
 
 #daytimeSliderContainer {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    z-index: 10;
+    width: 100%;
     background-color: rgba(255, 255, 255, 0.8);
-    padding: 10px;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
 }
 
 #daytimeSlider {
-    width: 200px;
+    width: 90%;
 }
