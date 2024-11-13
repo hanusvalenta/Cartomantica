@@ -330,30 +330,76 @@ function placeObject() {
     }
 }
 
-function updateLighting(time) {
-    const normalizedTime = time / 24;
-    
-    ambientLight.intensity = 0.3 + Math.sin(normalizedTime * Math.PI) * 0.7;
+// Define color stops for different times of day
+const nightColor = new THREE.Color(0x4040ff); // Cool blue for night
+const sunriseColor = new THREE.Color(0xffa07a); // Warm orange for sunrise/sunset
+const dayColor = new THREE.Color(0xffffff); // White for midday
 
-    directionalLight.intensity = 0.5 + Math.sin(normalizedTime * Math.PI) * 1.5;
+let currentSliderValue = parseFloat(daytimeSlider.value);
+let targetSliderValue = currentSliderValue;
 
-    if (time < 6 || time > 18) {
-        directionalLight.color.setHSL(0.6, 0.5, 0.5);
-    } else if (time < 9 || time > 15) {
-        directionalLight.color.setHSL(0.1, 0.8, 0.8);
+// Enhanced shadow settings
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 4096;
+directionalLight.shadow.mapSize.height = 4096;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 300;
+directionalLight.shadow.camera.left = -100;
+directionalLight.shadow.camera.right = 100;
+directionalLight.shadow.camera.top = 100;
+directionalLight.shadow.camera.bottom = -100;
+
+// Smooth transition function using interpolation
+function updateSunPosition(deltaTime) {
+    // Interpolate towards the target slider value
+    currentSliderValue += (targetSliderValue - currentSliderValue) * deltaTime;
+
+    const normalizedTime = currentSliderValue / 24;
+    const sunAngle = normalizedTime * Math.PI * 2;
+
+    // Calculate sun position (east-to-west arc)
+    const sunX = Math.cos(sunAngle) * 100;
+    const sunY = Math.max(Math.sin(sunAngle) * 80, 5);
+    const sunZ = Math.sin(sunAngle) * 100;
+
+    directionalLight.position.set(sunX, sunY, sunZ);
+    directionalLight.target.position.set(0, 0, 0); // Ensure the light points towards the center of the scene
+
+    // Light intensity interpolation
+    const dayIntensity = 2.0;
+    const nightIntensity = 0.1;
+    const sunriseIntensity = 1.0;
+
+    let intensity;
+    if (currentSliderValue < 6) {
+        // Night to sunrise
+        intensity = THREE.MathUtils.lerp(nightIntensity, sunriseIntensity, currentSliderValue / 6);
+        directionalLight.color.lerpColors(nightColor, sunriseColor, currentSliderValue / 6);
+    } else if (currentSliderValue < 12) {
+        // Sunrise to midday
+        intensity = THREE.MathUtils.lerp(sunriseIntensity, dayIntensity, (currentSliderValue - 6) / 6);
+        directionalLight.color.lerpColors(sunriseColor, dayColor, (currentSliderValue - 6) / 6);
+    } else if (currentSliderValue < 18) {
+        // Midday to sunset
+        intensity = THREE.MathUtils.lerp(dayIntensity, sunriseIntensity, (currentSliderValue - 12) / 6);
+        directionalLight.color.lerpColors(dayColor, sunriseColor, (currentSliderValue - 12) / 6);
     } else {
-        directionalLight.color.setHSL(0.15, 0.3, 1);
+        // Sunset to night
+        intensity = THREE.MathUtils.lerp(sunriseIntensity, nightIntensity, (currentSliderValue - 18) / 6);
+        directionalLight.color.lerpColors(sunriseColor, nightColor, (currentSliderValue - 18) / 6);
     }
 
-    const angle = normalizedTime * Math.PI * 2;
-    directionalLight.position.set(Math.cos(angle) * 20, Math.sin(angle) * 20 + 10, Math.sin(angle) * 20);
+    directionalLight.intensity = intensity;
+
+    // Smooth transition for ambient light
+    ambientLight.intensity = 0.1 + Math.max(sunY / 160, 0.05);
+
+    // Update shadow camera to reflect changes
+    directionalLight.shadow.camera.updateProjectionMatrix();
 }
 
-updateLighting(daytimeSlider.value);
-
 daytimeSlider.addEventListener('input', (event) => {
-    const time = parseFloat(event.target.value);
-    updateLighting(time);
+    targetSliderValue = parseFloat(event.target.value);
 });
 
 function onMouseMove(event) {
@@ -482,6 +528,10 @@ function animate() {
     requestAnimationFrame(animate);
 
     updateCameraPosition();
+
+    const deltaTime = 0.05;
+
+    updateSunPosition(deltaTime);
 
     directionalLight.position.copy(camera.position);
     directionalLight.position.y += 10;
