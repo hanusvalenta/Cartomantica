@@ -202,7 +202,6 @@
         "type": "Maxwell",
         "geometry": "GLTF",
         "modelPath": "./models/maxwell.glb",
-        "color": "#FFFFFF",
         "scale": [0.1, 0.1, 0.1]
     },    
     {
