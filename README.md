@@ -11,4 +11,3 @@ Small D&D map maker made in electron and three js
 # Pro Kryštofa
 
 * rozdělit renderer.js do více files
-* importovat 3D objekty k těm defaultním

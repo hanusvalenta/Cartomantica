@@ -2,6 +2,7 @@ import * as THREE from '../../node_modules/three/build/three.module.js';
 import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 
 const scene = new THREE.Scene();
+const loader = new GLTFLoader();
 scene.background = new THREE.Color(0xffffff);
 
 const aspect = window.innerWidth / window.innerHeight;
@@ -175,6 +176,17 @@ deleteBtn.addEventListener('click', () => {
         console.log('Delete mode deactivated.');
     }
 });
+
+loader.load(
+    './models/maxwell.glb',
+    function (gltf) {
+      scene.add(gltf.scene);
+    },
+    undefined,
+    function (error) {
+      console.error('An error happened', error);
+    }
+  );
 
 function toggleEditMode() {
     isEditMode = !isEditMode;
@@ -613,20 +625,3 @@ function animate() {
 }
 
 animate();
-
-
-// Create a loader instance
-const loader = new GLTFLoader();
-
-// Load a glTF resource
-loader.load(
-  './models/maxwell.glb',
-  function (gltf) {
-    // Add the loaded model to the scene
-    scene.add(gltf.scene);
-  },
-  undefined,
-  function (error) {
-    console.error('An error happened', error);
-  }
-);
