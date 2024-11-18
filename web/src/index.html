@@ -47,12 +47,25 @@
         </div>
     </div>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     <script src="./renderer.js"></script>
     <script>
         // Your existing Three.js code here...
     </script>
 =======
     <script src="./renderer.js" type="module"></script>
+>>>>>>> Stashed changes
+=======
+
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/examples/jsm/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+          }
+        }
+    </script>
+    <script type="module" src="./main.js"></script>
 >>>>>>> Stashed changes
 </body>
 </html>
