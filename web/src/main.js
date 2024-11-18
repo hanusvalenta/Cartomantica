@@ -234,8 +234,11 @@ function previewSelectedObject() {
                     temporaryObject.traverse((child) => {
                         if (child.isMesh) {
                             child.castShadow = true;
+                            
+                            const outline = createHandDrawnOutline(child);
+                            child.add(outline);
                         }
-                    });
+                    });                    
                     const scale = objectFromJson.scale || [1, 1, 1];
                     temporaryObject.scale.set(scale[0], scale[1], scale[2]);
         
