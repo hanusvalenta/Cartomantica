@@ -213,7 +213,7 @@
     {
         "type": "Blahaj",
         "geometry": "GLTF",
-        "modelPath": "./models/teapot.glb",
+        "modelPath": "./models/blahaj.glb",
         "color": "#FFFFFF"
     }    
 ]
