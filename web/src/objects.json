@@ -197,5 +197,11 @@
             "coverColor": "#FFFFFF",
             "coverPosition": [0, 0.75, 0]
         }
-    }
+    },
+    {
+        "type": "maxwell",
+        "geometry": "GLTF",
+        "modelPath": "./models/maxwell.glb",
+        "color": "#FFFFFF"
+    }    
 ]

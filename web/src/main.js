@@ -177,17 +177,6 @@ deleteBtn.addEventListener('click', () => {
     }
 });
 
-loader.load(
-    './models/maxwell.glb',
-    function (gltf) {
-      scene.add(gltf.scene);
-    },
-    undefined,
-    function (error) {
-      console.error('An error happened', error);
-    }
-  );
-
 function toggleEditMode() {
     isEditMode = !isEditMode;
     selectedObject = null;
@@ -237,6 +226,24 @@ function previewSelectedObject() {
     const objectFromJson = objectData.find((obj) => obj.type === selectedObjectType);
 
     if (objectFromJson) {
+        if (objectFromJson.geometry === "GLTF") {
+            loader.load(
+                objectFromJson.modelPath,
+                (gltf) => {
+                    temporaryObject = gltf.scene;
+                    temporaryObject.position.set(0, 1, 0);
+                    temporaryObject.castShadow = true;
+                    scene.add(temporaryObject);
+                    document.getElementById('objectList').style.display = 'none';
+                },
+                undefined,
+                (error) => {
+                    console.error('Failed to load GLTF model:', error);
+                }
+            );
+            return;
+        }
+
         switch (objectFromJson.geometry) {
             case 'BoxGeometry':
                 geometry = new THREE.BoxGeometry(...objectFromJson.parameters);
