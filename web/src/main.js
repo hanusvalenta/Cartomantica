@@ -231,6 +231,14 @@ function previewSelectedObject() {
                 objectFromJson.modelPath,
                 (gltf) => {
                     temporaryObject = gltf.scene;
+                    temporaryObject.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                        }
+                    });
+                    const scale = objectFromJson.scale || [1, 1, 1];
+                    temporaryObject.scale.set(scale[0], scale[1], scale[2]);
+        
                     temporaryObject.position.set(0, 1, 0);
                     temporaryObject.castShadow = true;
                     scene.add(temporaryObject);
@@ -241,8 +249,7 @@ function previewSelectedObject() {
                     console.error('Failed to load GLTF model:', error);
                 }
             );
-            return;
-        }
+        }              
 
         switch (objectFromJson.geometry) {
             case 'BoxGeometry':
