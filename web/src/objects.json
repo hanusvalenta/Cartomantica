@@ -203,5 +203,11 @@
         "geometry": "GLTF",
         "modelPath": "./models/maxwell.glb",
         "color": "#FFFFFF"
+    },
+    {
+        "type": "teapot",
+        "geometry": "GLTF",
+        "modelPath": "./models/teapot.glb",
+        "color": "#FFFFFF"
     }    
 ]
