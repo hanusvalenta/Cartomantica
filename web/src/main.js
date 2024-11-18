@@ -239,7 +239,8 @@ function previewSelectedObject() {
                     const scale = objectFromJson.scale || [1, 1, 1];
                     temporaryObject.scale.set(scale[0], scale[1], scale[2]);
         
-                    temporaryObject.position.set(0, 1, 0);
+                    const yOffset = objectFromJson.yOffset || 1;
+                    temporaryObject.position.set(0, yOffset, 0);
                     temporaryObject.castShadow = true;
                     scene.add(temporaryObject);
                     document.getElementById('objectList').style.display = 'none';

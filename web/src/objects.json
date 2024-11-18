@@ -216,5 +216,12 @@
         "geometry": "GLTF",
         "modelPath": "./models/blahaj.glb",
         "color": "#FFFFFF"
-    }    
+    },
+    {
+        "type": "Suzanne",
+        "geometry": "GLTF",
+        "modelPath": "./models/suzanne.glb",
+        "color": "#FFFFFF",
+        "yOffset": 2.0
+    }
 ]
