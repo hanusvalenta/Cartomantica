@@ -16,22 +16,21 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+const ambientLight = new THREE.AmbientLight(0x404040, 1.0);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
 directionalLight.position.set(30, 50, -30);
 directionalLight.castShadow = true;
 
 directionalLight.shadow.mapSize.width = 4096;
 directionalLight.shadow.mapSize.height = 4096;
-
-directionalLight.shadow.camera.near = 1;
-directionalLight.shadow.camera.far = 200;
-directionalLight.shadow.camera.left = -50;
-directionalLight.shadow.camera.right = 50;
-directionalLight.shadow.camera.top = 50;
-directionalLight.shadow.camera.bottom = -50;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 300;
+directionalLight.shadow.camera.left = -100;
+directionalLight.shadow.camera.right = 100;
+directionalLight.shadow.camera.top = 100;
+directionalLight.shadow.camera.bottom = -100;
 
 scene.add(directionalLight);
 
@@ -419,8 +418,6 @@ function updateSunPosition(deltaTime) {
     }
 
     directionalLight.intensity = intensity;
-
-    ambientLight.intensity = 0.1 + Math.max(sunY / 160, 0.05);
 
     directionalLight.shadow.camera.updateProjectionMatrix();
 }
