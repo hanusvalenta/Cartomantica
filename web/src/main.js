@@ -372,7 +372,7 @@ const nightColor = new THREE.Color(0x4040ff);
 const sunriseColor = new THREE.Color(0xffa07a);
 const dayColor = new THREE.Color(0xffffff);
 
-let currentSliderValue = parseFloat(daytimeSlider.value);
+let currentSliderValue = 8;
 let targetSliderValue = currentSliderValue;
 
 directionalLight.castShadow = true;
