@@ -20,16 +20,19 @@ const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(10, 20, 10);
+directionalLight.position.set(30, 50, -30);
 directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 2048;
-directionalLight.shadow.mapSize.height = 2048;
-directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 100;
-directionalLight.shadow.camera.left = -15;
-directionalLight.shadow.camera.right = 15;
-directionalLight.shadow.camera.top = 15;
-directionalLight.shadow.camera.bottom = -15;
+
+directionalLight.shadow.mapSize.width = 4096;
+directionalLight.shadow.mapSize.height = 4096;
+
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 200;
+directionalLight.shadow.camera.left = -50;
+directionalLight.shadow.camera.right = 50;
+directionalLight.shadow.camera.top = 50;
+directionalLight.shadow.camera.bottom = -50;
+
 scene.add(directionalLight);
 
 function createDotTexture() {
@@ -623,9 +626,6 @@ function animate() {
     const deltaTime = 0.05;
 
     updateSunPosition(deltaTime);
-
-    directionalLight.position.copy(camera.position);
-    directionalLight.position.y += 10;
 
     if (isEditMode && selectedObject) {
         rotationSpeed *= (1 - rotationFriction);
