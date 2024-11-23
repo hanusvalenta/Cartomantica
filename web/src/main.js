@@ -1,14 +1,22 @@
-import * as THREE from '../../node_modules/three/build/three.module.js';
-import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { setupScene, initCamera } from './scene.js';
+import { setupLighting } from './lighting.js';
+import { createGround, loadObjectData, spawnRandomObject, startSpawning, setupObjectEditing } from './objects.js';
+import { setupControls, setupUI } from './controls.js';
+import { updateSunPosition, daytimeSlider } from './sun.js';
 
+<<<<<<< Updated upstream
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
+=======
+// Initialize scene, camera, and renderer from setupScene function
+const { scene, camera, renderer } = setupScene();
+>>>>>>> Stashed changes
 
-const aspect = window.innerWidth / window.innerHeight;
-const camera = new THREE.OrthographicCamera(-10 * aspect, 10 * aspect, 10, -10, 0.1, 1000);
-camera.position.set(0, 50, 0);
-camera.lookAt(0, 0, 0);
+// Setup lighting (returns an object with directionalLight)
+const { directionalLight } = setupLighting(scene);
 
+<<<<<<< Updated upstream
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -186,8 +194,14 @@ function toggleEditMode() {
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
 }
+=======
+// Create ground in the scene
+const ground = createGround(scene);
+>>>>>>> Stashed changes
 
+// Load object data asynchronously and start spawning objects when done
 let objectData = [];
+<<<<<<< Updated upstream
 
 async function loadObjectData() {
     try {
@@ -394,52 +408,31 @@ function updateSunPosition(deltaTime) {
 
 daytimeSlider.addEventListener('input', (event) => {
     targetSliderValue = parseFloat(event.target.value);
+=======
+loadObjectData().then(() => {
+  startSpawning(); // Assuming this will use the loaded data to spawn objects
+  setupObjectEditing(scene); // Setup object editing after objects are spawned
+>>>>>>> Stashed changes
 });
 
-function spawnRandomObject() {
-    if (!objectData.length) return;
+// Update Sun Position for the day/night cycle
+let lastTime = 0;
+function animate(time) {
+  const deltaTime = (time - lastTime) * 0.001;
+  updateSunPosition(deltaTime); // Updates the sun's position based on time of day
+  lastTime = time;
 
-    const randomIndex = Math.floor(Math.random() * objectData.length);
-    const objectFromJson = objectData[randomIndex];
-    let geometry, material;
+  // Render the scene with the camera
+  renderer.render(scene, camera);
 
-    switch (objectFromJson.geometry) {
-        case 'BoxGeometry':
-            geometry = new THREE.BoxGeometry(...objectFromJson.parameters);
-            break;
-        case 'SphereGeometry':
-            geometry = new THREE.SphereGeometry(...objectFromJson.parameters);
-            break;
-        case 'CylinderGeometry':
-            geometry = new THREE.CylinderGeometry(...objectFromJson.parameters);
-            break;
-        case 'ConeGeometry':
-            geometry = new THREE.ConeGeometry(...objectFromJson.parameters);
-            break;
-        default:
-            console.warn(`Unknown geometry type: ${objectFromJson.geometry}`);
-            return;
-    }
-
-    material = new THREE.MeshStandardMaterial({ color: objectFromJson.color || Math.random() * 0xffffff });
-
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = true;
-    mesh.position.set(
-        (Math.random() - 0.5) * 30,
-        1,
-        (Math.random() - 0.5) * 30
-    );
-
-    scene.add(mesh);
-    spawnedObjects.push(mesh);
+  // Recursively call animate to create the animation loop
+  requestAnimationFrame(animate);
 }
 
-function startSpawning() {
-    if (isSpawning) return;
-    isSpawning = true;
-    spawnInterval = setInterval(spawnRandomObject, 200);
+// Start the animation loop
+requestAnimationFrame(animate);
 
+<<<<<<< Updated upstream
     spawnTimer = setTimeout(stopSpawning, 20000);
 }
 
@@ -630,3 +623,8 @@ loader.load(
     console.error('An error happened', error);
   }
 );
+=======
+// UI Controls
+setupUI();
+setupControls(camera, scene);
+>>>>>>> Stashed changes
