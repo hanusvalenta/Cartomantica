@@ -141,6 +141,8 @@ document.getElementById('spawnBtn').addEventListener('click', () => {
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
 document.getElementById('confirmSpawn').addEventListener('click', previewSelectedObject);
 
+document.getElementById('createBtn').addEventListener('click', stopSpawningAndDelete);
+
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
 document.addEventListener('mousedown', onMouseDown, false);
 document.addEventListener('mousemove', onMouseMove, false);
@@ -528,8 +530,6 @@ function stopSpawningAndDelete() {
 }
 
 startSpawning();
-
-document.getElementById('createBtn').addEventListener('click', stopSpawningAndDelete);
 
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
