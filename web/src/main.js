@@ -3,6 +3,7 @@ import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLo
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { populateObjectList } from './modules/populateObjectList.js';
+import { createHandDrawnOutline } from './modules/createHandDrawnOutline.js';
 
 const scene = new THREE.Scene();
 const loader = new GLTFLoader();
@@ -242,24 +243,6 @@ async function loadObjectData() {
 }
 
 loadObjectData();
-
-function createHandDrawnOutline(mesh, color = 0x000000, thickness = 1) {
-    const edgesGeometry = new THREE.EdgesGeometry(mesh.geometry);
-    const outlineMaterial = new THREE.LineBasicMaterial({
-        color: color,
-        linewidth: thickness,
-    });
-
-    const outline = new THREE.LineSegments(edgesGeometry, outlineMaterial);
-
-    outline.scale.set(1.01, 1.01, 1.01);
-    outline.renderOrder = 1;
-    outline.raycast = () => {};
-
-    mesh.add(outline);
-
-    return outline;
-}
 
 function previewSelectedObject() {
     const selectedObjectType = document.getElementById('objectSelect').value;
