@@ -1,5 +1,7 @@
 import * as THREE from '../../node_modules/three/build/three.module.js';
 import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+
 
 const scene = new THREE.Scene();
 const loader = new GLTFLoader();
@@ -33,6 +35,9 @@ directionalLight.shadow.camera.top = 100;
 directionalLight.shadow.camera.bottom = -100;
 
 scene.add(directionalLight);
+
+const transformControls = new TransformControls(camera, renderer.domElement);
+scene.add(transformControls);
 
 function createDotTexture() {
     const canvas = document.createElement('canvas');
@@ -179,6 +184,35 @@ deleteBtn.addEventListener('click', () => {
     }
 });
 
+transformControls.addEventListener('dragging-changed', (event) => {
+    isDraggingObject = event.value;
+});
+
+document.getElementById('translateMode').addEventListener('click', () => {
+    transformControls.setMode('translate');
+});
+
+document.getElementById('rotateMode').addEventListener('click', () => {
+    transformControls.setMode('rotate');
+});
+
+document.getElementById('scaleMode').addEventListener('click', () => {
+    transformControls.setMode('scale');
+});
+
+document.addEventListener('click', (event) => {
+    const transformMenu = document.getElementById('transformMenu');
+    const editBtn = document.getElementById('editBtn');
+
+    if (!transformMenu.contains(event.target) && event.target !== editBtn) {
+        transformMenu.style.display = 'none';
+    }
+})
+
+function attachTransformControls(object) {
+    transformControls.attach(object);
+}
+
 function toggleEditMode() {
     isEditMode = !isEditMode;
     selectedObject = null;
@@ -188,6 +222,9 @@ function toggleEditMode() {
 
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
+
+    const transformMenu = document.getElementById('transformMenu');
+    transformMenu.style.display = isEditMode ? 'block' : 'none';
 }
 
 let objectData = [];
@@ -532,6 +569,7 @@ function onMouseDown(event) {
     
         selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
         isDraggingObject = true;
+        attachTransformControls(selectedObject);
     } 
     if (isDeleteMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
