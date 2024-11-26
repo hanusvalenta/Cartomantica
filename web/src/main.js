@@ -138,6 +138,8 @@ toggleMenuBtn.addEventListener('click', () => {
 });
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
+    isDeleteMode = false;
+    deleteBtn.classList.remove('active');
     document.getElementById('objectList').style.display = 'block';
 });
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
