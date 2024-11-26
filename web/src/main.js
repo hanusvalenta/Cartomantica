@@ -222,7 +222,6 @@ document.addEventListener('click', (event) => {
 function attachTransformControls(object) {
     if (transformControls.object !== object) {
         transformControls.detach();
-        transformControls.attach(object);
     }
 }
 
