@@ -224,7 +224,6 @@ function attachTransformControls(object) {
         transformControls.detach();
         transformControls.attach(object);
     }
-    transformControls.update();
 }
 
 function toggleEditMode() {
@@ -553,7 +552,6 @@ function onMouseDown(event) {
                 }
     
                 scene.remove(intersectedObject.parent || intersectedObject);
-    t
                 transformControls.attach(ground);
                 console.log("Object deleted:", intersectedObject);
             }
