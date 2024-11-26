@@ -561,6 +561,14 @@ function onMouseDown(event) {
             selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
             isDraggingObject = true;
             transformControls.attach(selectedObject);
+        }
+    }
+
+    if (isEditMode) {
+        if (intersects.length > 0) {
+            selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
+            isDraggingObject = true;
+            transformControls.attach(selectedObject);
         } else {
             selectedObject = null;
             transformControls.detach();
