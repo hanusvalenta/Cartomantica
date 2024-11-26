@@ -190,6 +190,12 @@ deleteBtn.addEventListener('click', () => {
 
 transformControls.addEventListener('dragging-changed', (event) => {
     isDraggingObject = event.value;
+
+    if (!isDraggingObject) {
+        if (selectedObject) {
+            transformControls.attach(selectedObject);
+        }
+    }
 });
 
 document.getElementById('translateMode').addEventListener('click', () => {
@@ -218,6 +224,7 @@ function attachTransformControls(object) {
         transformControls.detach();
         transformControls.attach(object);
     }
+    transformControls.update();
 }
 
 function toggleEditMode() {
@@ -511,9 +518,9 @@ function onMouseMove(event) {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             selectedObject.position.copy(intersects[0].point).setY(1);
+            transformControls.attach(selectedObject); // Reattach to ensure handles stick
         }
-    }    
-    else if (temporaryObject) {
+    } else if (temporaryObject) {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             temporaryObject.position.copy(intersects[0].point).setY(1);
@@ -527,35 +534,19 @@ function onMouseDown(event) {
 
     if (temporaryObject && event.button === 0) {
         placeObject();
-    } 
+    }
     if (isEditMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
-        
+
         if (intersectedObject.name === "defaultGround") {
             console.log("Ground is unmovable.");
             return;
         }
-    
+
         selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
         isDraggingObject = true;
-        attachTransformControls(selectedObject);
-    } 
-    else {
-        transformControls.detach();
-    }
-
-    if (isDeleteMode && intersects.length > 0) {
-        const intersectedObject = intersects[0].object;
-        const objectToDelete = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
-    
-        if (objectToDelete.name === "defaultGround") {
-            console.log("Default ground cannot be deleted.");
-            return;
-        }
-    
-        scene.remove(objectToDelete);
-        console.log('Object deleted:', objectToDelete);
+        transformControls.attach(selectedObject); // Attach to the newly selected object
     }
 }
 
@@ -631,7 +622,6 @@ function animate() {
     requestAnimationFrame(animate);
 
     updateCameraPosition();
-
     const deltaTime = 0.05;
 
     updateSunPosition(deltaTime);
