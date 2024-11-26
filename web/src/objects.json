@@ -7,7 +7,7 @@
             2,
             2
         ],
-        "color": "#ff0000"
+        "color": "#ffffff"
     },
     {
         "type": "Sphere",
@@ -17,7 +17,7 @@
             32,
             32
         ],
-        "color": "#00ff00"
+        "color": "#ffffff"
     },
     {
         "type": "Cone",
@@ -27,7 +27,7 @@
             3,
             32
         ],
-        "color": "#0000ff"
+        "color": "#ffffff"
     },
     {
         "type": "Cylinder",
@@ -38,7 +38,7 @@
             2,
             32
         ],
-        "color": "#ffff00"
+        "color": "#ffffff"
     },
     {
         "type": "Wall",
@@ -48,7 +48,7 @@
             5,
             0.5
         ],
-        "color": "#a0a0a0"
+        "color": "#ffffff"
     },
     {
         "type": "House",
@@ -58,7 +58,7 @@
             4,
             5
         ],
-        "color": "#ffcc00",
+        "color": "#ffffff",
         "details": {
             "roofGeometry": "ConeGeometry",
             "roofParameters": [
@@ -66,7 +66,7 @@
                 2.5,
                 4
             ],
-            "roofColor": "#8b4513",
+            "roofColor": "#ffffff",
             "roofPosition": [
                 0,
                 3.5,
@@ -78,7 +78,7 @@
                 2,
                 0.1
             ],
-            "doorColor": "#654321",
+            "doorColor": "#ffffff",
             "doorPosition": [
                 0,
                 -1,
@@ -90,7 +90,7 @@
                 1,
                 0.1
             ],
-            "windowColor": "#add8e6",
+            "windowColor": "#ffffff",
             "windowPositions": [
                 [
                     -1.5,
@@ -112,7 +112,7 @@
             20,
             20
         ],
-        "color": "#cccccc"
+        "color": "#ffffff"
     },
     {
         "type": "Maxwell",
