@@ -535,18 +535,36 @@ function onMouseDown(event) {
     if (temporaryObject && event.button === 0) {
         placeObject();
     }
-    if (isEditMode && intersects.length > 0) {
-        const intersectedObject = intersects[0].object;
-        if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
 
-        if (intersectedObject.name === "defaultGround") {
-            console.log("Ground is unmovable.");
-            return;
+    if (isDeleteMode) {
+        if (intersects.length > 0) {
+            const intersectedObject = intersects[0].object;
+            if (intersectedObject.name !== "defaultGround") {
+                scene.remove(intersectedObject.parent || intersectedObject);
+                console.log("Object deleted:", intersectedObject);
+            }
         }
+        return;
+    }
 
-        selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
-        isDraggingObject = true;
-        transformControls.attach(selectedObject); // Attach to the newly selected object
+    if (isEditMode) {
+        if (intersects.length > 0) {
+            const intersectedObject = intersects[0].object;
+
+            if (intersectedObject.material && intersectedObject.material.isLineBasicMaterial) return;
+
+            if (intersectedObject.name === "defaultGround") {
+                console.log("Ground is unmovable.");
+                return;
+            }
+
+            selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
+            isDraggingObject = true;
+            transformControls.attach(selectedObject);
+        } else {
+            selectedObject = null;
+            transformControls.detach();
+        }
     }
 }
 
