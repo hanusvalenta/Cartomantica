@@ -214,7 +214,10 @@ document.addEventListener('click', (event) => {
 })
 
 function attachTransformControls(object) {
-    transformControls.attach(object);
+    if (transformControls.object !== object) {
+        transformControls.detach();
+        transformControls.attach(object);
+    }
 }
 
 function toggleEditMode() {
@@ -538,6 +541,10 @@ function onMouseDown(event) {
         isDraggingObject = true;
         attachTransformControls(selectedObject);
     } 
+    else {
+        transformControls.detach();
+    }
+
     if (isDeleteMode && intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         const objectToDelete = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
