@@ -193,10 +193,8 @@ deleteBtn.addEventListener('click', () => {
 transformControls.addEventListener('dragging-changed', (event) => {
     isDraggingObject = event.value;
 
-    if (!isDraggingObject) {
-        if (selectedObject) {
-            transformControls.attach(selectedObject);
-        }
+    if (!isDraggingObject && !selectedObject) {
+        transformControls.detach();
     }
 });
 
@@ -235,12 +233,15 @@ function toggleEditMode() {
     isDeleteMode = false;
 
     deleteBtn.classList.remove('active');
-
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
 
     const transformMenu = document.getElementById('transformMenu');
     transformMenu.style.display = isEditMode ? 'block' : 'none';
+
+    if (!isEditMode) {
+        transformControls.detach();
+    }
 }
 
 let objectData = [];
@@ -520,7 +521,7 @@ function onMouseMove(event) {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             selectedObject.position.copy(intersects[0].point).setY(1);
-            transformControls.attach(selectedObject); // Reattach to ensure handles stick
+            transformControls.attach(selectedObject);
         }
     } else if (temporaryObject) {
         const intersects = raycaster.intersectObject(ground);
@@ -560,14 +561,6 @@ function onMouseDown(event) {
                 return;
             }
 
-            selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
-            isDraggingObject = true;
-            transformControls.attach(selectedObject);
-        }
-    }
-
-    if (isEditMode) {
-        if (intersects.length > 0) {
             selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
             isDraggingObject = true;
             transformControls.attach(selectedObject);
