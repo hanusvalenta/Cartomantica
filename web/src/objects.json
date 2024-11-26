@@ -1,226 +1,143 @@
 [
     {
-        "type": "Bridge",
-        "geometry": "BoxGeometry",
-        "parameters": [10, 0.5, 3],
-        "color": "#FFFFFF",
-        "details": {
-            "supportGeometry": "CylinderGeometry",
-            "supportParameters": [0.3, 0.3, 1.5, 16],
-            "supportColor": "#FFFFFF",
-            "supportPositions": [
-                [-4.5, -0.75, -1.4],
-                [4.5, -0.75, -1.4],
-                [-4.5, -0.75, 1.4],
-                [4.5, -0.75, 1.4]
-            ],
-            "railingsGeometry": "BoxGeometry",
-            "railingsParameters": [10, 0.2, 0.2],
-            "railingsColor": "#FFFFFF",
-            "railingsPositions": [
-                [0, 0.5, 1.5],
-                [0, 0.5, -1.5]
-            ]
-        }
-    },
-    {
-        "type": "Chair",
-        "geometry": "BoxGeometry",
-        "parameters": [1, 0.2, 1],
-        "color": "#FFFFFF",
-        "details": {
-            "backrestGeometry": "BoxGeometry",
-            "backrestParameters": [1, 1.5, 0.2],
-            "backrestColor": "#FFFFFF",
-            "backrestPosition": [0, 1.3, -0.4],
-            "legsGeometry": "CylinderGeometry",
-            "legsParameters": [0.1, 0.1, 0.8, 16],
-            "legsColor": "#FFFFFF",
-            "legsPositions": [
-                [-0.4, 0.4, -0.4],
-                [0.4, 0.4, -0.4],
-                [-0.4, 0.4, 0.4],
-                [0.4, 0.4, 0.4]
-            ]
-        }
-    },
-    {
-        "type": "Cone",
-        "geometry": "ConeGeometry",
-        "parameters": [1, 3, 32],
-        "color": "#FFFFFF"
-    },
-    {
         "type": "Cube",
         "geometry": "BoxGeometry",
-        "parameters": [2, 2, 2],
-        "color": "#FFFFFF"
-    },
-    {
-        "type": "Fence",
-        "geometry": "BoxGeometry",
-        "parameters": [0.1, 1, 10],
-        "color": "#FFFFFF",
-        "details": {
-            "postGeometry": "CylinderGeometry",
-            "postParameters": [0.2, 0.2, 1, 16],
-            "postColor": "#FFFFFF",
-            "postPositions": [
-                [-4.5, 0.5, 0],
-                [-3, 0.5, 0],
-                [-1.5, 0.5, 0],
-                [0, 0.5, 0],
-                [1.5, 0.5, 0],
-                [3, 0.5, 0],
-                [4.5, 0.5, 0]
-            ],
-            "railGeometry": "BoxGeometry",
-            "railParameters": [10, 0.1, 0.2],
-            "railColor": "#FFFFFF",
-            "railPositions": [
-                [0, 0.7, 0],
-                [0, 0.3, 0]
-            ]
-        }
-    },
-    {
-        "type": "House",
-        "geometry": "BoxGeometry",
-        "parameters": [5, 4, 5],
-        "color": "#FFFFFF",
-        "details": {
-            "roofGeometry": "ConeGeometry",
-            "roofParameters": [5.5, 2.5, 4],
-            "roofColor": "#FFFFFF",
-            "roofPosition": [0, 3.5, 0],
-            "doorGeometry": "BoxGeometry",
-            "doorParameters": [1, 2, 0.1],
-            "doorColor": "#FFFFFF",
-            "doorPosition": [0, 1, 2.5],
-            "windowGeometry": "BoxGeometry",
-            "windowParameters": [1, 1, 0.1],
-            "windowColor": "#FFFFFF",
-            "windowPositions": [
-                [-1.5, 1.5, 2.5],
-                [1.5, 1.5, 2.5]
-            ]
-        }
-    },
-    {
-        "type": "Lamp",
-        "geometry": "CylinderGeometry",
-        "parameters": [0.5, 0.5, 2, 16],
-        "color": "#FFFF00",
-        "details": {
-            "baseGeometry": "CylinderGeometry",
-            "baseParameters": [1, 1, 0.5, 32],
-            "baseColor": "#888888",
-            "basePosition": [0, -1, 0],
-            "shadeGeometry": "ConeGeometry",
-            "shadeParameters": [1.5, 2, 16],
-            "shadeColor": "#FFFFFF",
-            "shadePosition": [0, 1.5, 0]
-        }
-    },
-    {
-        "type": "River",
-        "geometry": "BoxGeometry",
-        "parameters": [20, 0.1, 5],
-        "color": "#FFFFFF",
-        "details": {
-            "waveEffect": true,
-            "depth": 0.3
-        }
-    },
-    {
-        "type": "Rock",
-        "geometry": "DodecahedronGeometry",
-        "parameters": [1.2, 0],
-        "color": "#FFFFFF",
-        "details": {
-            "roughness": 1,
-            "displacementScale": 0.2
-        }
+        "parameters": [
+            2,
+            2,
+            2
+        ],
+        "color": "#ff0000"
     },
     {
         "type": "Sphere",
         "geometry": "SphereGeometry",
-        "parameters": [1.5, 32, 32],
-        "color": "#FFFFFF"
+        "parameters": [
+            1.5,
+            32,
+            32
+        ],
+        "color": "#00ff00"
     },
     {
-        "type": "Table",
+        "type": "Cone",
+        "geometry": "ConeGeometry",
+        "parameters": [
+            1,
+            3,
+            32
+        ],
+        "color": "#0000ff"
+    },
+    {
+        "type": "Cylinder",
+        "geometry": "CylinderGeometry",
+        "parameters": [
+            1,
+            1,
+            2,
+            32
+        ],
+        "color": "#ffff00"
+    },
+    {
+        "type": "Wall",
         "geometry": "BoxGeometry",
-        "parameters": [3, 0.2, 2],
-        "color": "#FFFFFF",
+        "parameters": [
+            10,
+            5,
+            0.5
+        ],
+        "color": "#a0a0a0"
+    },
+    {
+        "type": "House",
+        "geometry": "BoxGeometry",
+        "parameters": [
+            5,
+            4,
+            5
+        ],
+        "color": "#ffcc00",
         "details": {
-            "legsGeometry": "CylinderGeometry",
-            "legsParameters": [0.15, 0.15, 1, 16],
-            "legsColor": "#FFFFFF",
-            "legsPositions": [
-                [-1.3, -0.5, -0.8],
-                [1.3, -0.5, -0.8],
-                [-1.3, -0.5, 0.8],
-                [1.3, -0.5, 0.8]
+            "roofGeometry": "ConeGeometry",
+            "roofParameters": [
+                5.5,
+                2.5,
+                4
+            ],
+            "roofColor": "#8b4513",
+            "roofPosition": [
+                0,
+                3.5,
+                0
+            ],
+            "doorGeometry": "BoxGeometry",
+            "doorParameters": [
+                1,
+                2,
+                0.1
+            ],
+            "doorColor": "#654321",
+            "doorPosition": [
+                0,
+                -1,
+                2.5
+            ],
+            "windowGeometry": "BoxGeometry",
+            "windowParameters": [
+                1,
+                1,
+                0.1
+            ],
+            "windowColor": "#add8e6",
+            "windowPositions": [
+                [
+                    -1.5,
+                    1,
+                    2.5
+                ],
+                [
+                    1.5,
+                    1,
+                    2.5
+                ]
             ]
         }
     },
     {
-        "type": "Torus",
-        "geometry": "TorusGeometry",
-        "parameters": [1.5, 0.5, 16, 100],
-        "color": "#FFFFFF"
-    },
-    {
-        "type": "Tree",
-        "geometry": "ConeGeometry",
-        "parameters": [1.5, 5, 32],
-        "color": "#FFFFFF",
-        "details": {
-            "trunkGeometry": "CylinderGeometry",
-            "trunkParameters": [0.5, 0.5, 2, 16],
-            "trunkColor": "#FFFFFF",
-            "leafGeometry": "SphereGeometry",
-            "leafParameters": [2, 16, 16],
-            "leafColor": "#FFFFFF",
-            "leafPosition": [0, 3.5, 0]
-        }
-    },
-    {
-        "type": "Well",
-        "geometry": "CylinderGeometry",
-        "parameters": [1.2, 1.2, 1.5, 32],
-        "color": "#FFFFFF",
-        "details": {
-            "coverGeometry": "CircleGeometry",
-            "coverParameters": [1.2, 32],
-            "coverColor": "#FFFFFF",
-            "coverPosition": [0, 0.75, 0]
-        }
+        "type": "Floor",
+        "geometry": "PlaneGeometry",
+        "parameters": [
+            20,
+            20
+        ],
+        "color": "#cccccc"
     },
     {
         "type": "Maxwell",
         "geometry": "GLTF",
         "modelPath": "./models/maxwell.glb",
-        "scale": [0.1, 0.1, 0.1]
-    },    
+        "scale": [
+            0.1,
+            0.1,
+            0.1
+        ]
+    },
     {
         "type": "Teapot",
         "geometry": "GLTF",
-        "modelPath": "./models/teapot.glb",
-        "color": "#FFFFFF"
+        "modelPath": "./models/teapot.glb"
     },
     {
         "type": "Blahaj",
         "geometry": "GLTF",
-        "modelPath": "./models/blahaj.glb",
-        "color": "#FFFFFF"
+        "modelPath": "./models/blahaj.glb"
     },
     {
         "type": "Suzanne",
         "geometry": "GLTF",
         "modelPath": "./models/suzanne.glb",
-        "color": "#FFFFFF",
         "yOffset": 2.0
     }
 ]
