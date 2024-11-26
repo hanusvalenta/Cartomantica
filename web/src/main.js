@@ -272,18 +272,22 @@ function previewSelectedObject() {
                     temporaryObject.traverse((child) => {
                         if (child.isMesh) {
                             child.castShadow = true;
-                            
                             const outline = createHandDrawnOutline(child);
                             child.add(outline);
                         }
-                    });                    
+                    });
+
                     const scale = objectFromJson.scale || [1, 1, 1];
                     temporaryObject.scale.set(scale[0], scale[1], scale[2]);
-        
+
                     const yOffset = objectFromJson.yOffset || 1;
                     temporaryObject.position.set(0, yOffset, 0);
                     temporaryObject.castShadow = true;
                     scene.add(temporaryObject);
+
+                    selectedObject = temporaryObject;
+                    attachTransformControls(selectedObject);
+
                     document.getElementById('objectList').style.display = 'none';
                 },
                 undefined,
@@ -291,7 +295,7 @@ function previewSelectedObject() {
                     console.error('Failed to load GLTF model:', error);
                 }
             );
-        }              
+        }             
 
         switch (objectFromJson.geometry) {
             case 'BoxGeometry':
@@ -560,7 +564,7 @@ function onMouseDown(event) {
                 console.log("Ground is unmovable.");
                 return;
             }
-            
+
             if (selectedObject !== intersectedObject) {
                 selectedObject = intersectedObject.parent instanceof THREE.Group 
                     ? intersectedObject.parent 
