@@ -547,7 +547,14 @@ function onMouseDown(event) {
         if (intersects.length > 0) {
             const intersectedObject = intersects[0].object;
             if (intersectedObject.name !== "defaultGround") {
+                if (selectedObject === intersectedObject || selectedObject?.parent === intersectedObject) {
+                    transformControls.detach();
+                    selectedObject = null;
+                }
+    
                 scene.remove(intersectedObject.parent || intersectedObject);
+    t
+                transformControls.attach(ground);
                 console.log("Object deleted:", intersectedObject);
             }
         }
