@@ -560,10 +560,14 @@ function onMouseDown(event) {
                 console.log("Ground is unmovable.");
                 return;
             }
-
-            selectedObject = intersectedObject.parent instanceof THREE.Group ? intersectedObject.parent : intersectedObject;
-            isDraggingObject = true;
-            transformControls.attach(selectedObject);
+            
+            if (selectedObject !== intersectedObject) {
+                selectedObject = intersectedObject.parent instanceof THREE.Group 
+                    ? intersectedObject.parent 
+                    : intersectedObject;
+                transformControls.detach();
+                transformControls.attach(selectedObject);
+            }
         } else {
             selectedObject = null;
             transformControls.detach();
