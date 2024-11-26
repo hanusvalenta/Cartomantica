@@ -117,7 +117,6 @@ const cameraMovement = {
 
 const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
-const deleteBtn = document.getElementById('deleteBtn');
 const daytimeSlider = document.getElementById('daytimeSlider');
 
 let isMenuVisible = true;
@@ -139,7 +138,6 @@ toggleMenuBtn.addEventListener('click', () => {
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
     isDeleteMode = false;
-    deleteBtn.classList.remove('active');
     document.getElementById('objectList').style.display = 'block';
 });
 document.getElementById('editBtn').addEventListener('click', toggleEditMode);
@@ -173,20 +171,6 @@ document.addEventListener('click', (event) => {
 
     if (!objectList.contains(event.target) && event.target !== spawnBtn) {
         objectList.style.display = 'none';
-    }
-});
-
-deleteBtn.addEventListener('click', () => {
-    isDeleteMode = !isDeleteMode;
-    isEditMode = false;
-
-    deleteBtn.classList.toggle('active', isDeleteMode);
-    editBtn.classList.remove('active');
-
-    if (isDeleteMode) {
-        console.log('Delete mode activated.');
-    } else {
-        console.log('Delete mode deactivated.');
     }
 });
 
@@ -230,7 +214,6 @@ function toggleEditMode() {
     selectedObject = null;
     isDeleteMode = false;
 
-    deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
 
@@ -615,6 +598,19 @@ function onKeyDown(event) {
 
     if (event.key === 'q' || event.key === 'Q') cameraMovement.zoomIn = true;
     if (event.key === 'e' || event.key === 'E') cameraMovement.zoomOut = true;
+
+    if (event.key === 'Delete') {
+        if (selectedObject) {
+            if (selectedObject.name !== "defaultGround") {
+                scene.remove(selectedObject);
+                transformControls.detach();
+                console.log("Deleted object:", selectedObject.name || selectedObject.id);
+                selectedObject = null;
+            } else {
+                console.log("Cannot delete the default ground.");
+            }
+        }
+    }
 }
 
 function onKeyUp(event) {
