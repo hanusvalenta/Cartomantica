@@ -505,13 +505,24 @@ function onMouseMove(event) {
     if (isDraggingObject && selectedObject && selectedObject.name !== "defaultGround") {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
-            selectedObject.position.copy(intersects[0].point).setY(1);
-            transformControls.attach(selectedObject);
+            const intersectionPoint = intersects[0].point;
+            
+            const objectToMove = selectedObject.isScene ? selectedObject : 
+                (selectedObject.parent instanceof THREE.Group ? selectedObject.parent : selectedObject);
+            
+            intersectionPoint.y = objectToMove.position.y;
+            
+            objectToMove.position.copy(intersectionPoint);
+            transformControls.attach(objectToMove);
         }
     } else if (temporaryObject) {
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
-            temporaryObject.position.copy(intersects[0].point).setY(1);
+            const intersectionPoint = intersects[0].point;
+            
+            intersectionPoint.y = temporaryObject.position.y;
+            
+            temporaryObject.position.copy(intersectionPoint);
         }
     }
 }
@@ -589,6 +600,19 @@ function onKeyDown(event) {
         if (event.key === '-') scalingVelocity = Math.max(scalingVelocity - scalingAcceleration, -maxScalingSpeed);
         if (event.key === 'r') rotationSpeed = Math.min(rotationSpeed + rotationAcceleration, maxRotationSpeed);
         if (event.key === 't') rotationSpeed = Math.max(rotationSpeed - rotationAcceleration, -maxRotationSpeed);
+
+        if (event.key === 'ArrowUp') {
+            selectedObject.position.z -= moveDistance;
+        }
+        if (event.key === 'ArrowDown') {
+            selectedObject.position.z += moveDistance;
+        }
+        if (event.key === 'ArrowLeft') {
+            selectedObject.position.x -= moveDistance;
+        }
+        if (event.key === 'ArrowRight') {
+            selectedObject.position.x += moveDistance;
+        }
     }
 
     if (event.key === 'w' || event.key === 'W') cameraMovement.forward = true;
@@ -599,7 +623,7 @@ function onKeyDown(event) {
     if (event.key === 'q' || event.key === 'Q') cameraMovement.zoomIn = true;
     if (event.key === 'e' || event.key === 'E') cameraMovement.zoomOut = true;
 
-    if (event.key === 'Delete') {
+    if (event.key === 'Backspace') {
         if (selectedObject) {
             if (selectedObject.name !== "defaultGround") {
                 scene.remove(selectedObject);
