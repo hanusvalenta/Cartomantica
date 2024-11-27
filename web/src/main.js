@@ -85,6 +85,8 @@ let spawnInterval = null;
 let isSpawning = false;
 let spawnTimer = null;
 
+let moveDistance = 1;
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
