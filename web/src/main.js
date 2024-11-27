@@ -151,6 +151,8 @@ document.getElementById('confirmSpawn').addEventListener('click', previewSelecte
 
 document.getElementById('createBtn').addEventListener('click', stopSpawningAndDelete);
 
+document.getElementById('saveBtn').addEventListener('click', saveSceneData);
+
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
 document.addEventListener('mousedown', onMouseDown, false);
 document.addEventListener('mousemove', onMouseMove, false);
@@ -209,19 +211,42 @@ document.addEventListener('click', (event) => {
     }
 })
 
+function captureSceneData() {
+    const sceneData = [];
+    scene.traverse((child) => {
+        if (child.isMesh || child.isGroup) {
+            const objectData = {
+                name: child.name || `Object_${child.id}`,
+                position: child.position.clone(),
+                rotation: child.rotation.clone(),
+                scale: child.scale.clone(),
+            };
+            sceneData.push(objectData);
+        }
+    });
+    return sceneData;
+}
+
+function saveSceneData() {
+    const sceneData = captureSceneData();
+    const json = JSON.stringify(sceneData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'scene-data.json';
+    link.click();
+}
+
 function updateObjectPosition() {
     if (isEditMode && selectedObject) {
-        // Apply friction to velocities
         objectVelocity.x *= (1 - objectFriction);
         objectVelocity.y *= (1 - objectFriction);
         objectVelocity.z *= (1 - objectFriction);
 
-        // Update position based on velocities
         selectedObject.position.x += objectVelocity.x;
         selectedObject.position.y += objectVelocity.y;
         selectedObject.position.z += objectVelocity.z;
 
-        // Prevent objects from going below the ground level
         if (selectedObject.position.y < 0) {
             selectedObject.position.y = 0;
         }
@@ -627,22 +652,22 @@ function onKeyDown(event) {
         if (event.key === 't') rotationSpeed = Math.max(rotationSpeed - rotationAcceleration, -maxRotationSpeed);
 
         switch (event.key) {
-            case 'ArrowUp': // Move forward (decrease z)
+            case 'ArrowUp':
                 objectVelocity.z = Math.max(objectVelocity.z - objectAcceleration, -0.5);
                 break;
-            case 'ArrowDown': // Move backward (increase z)
+            case 'ArrowDown':
                 objectVelocity.z = Math.min(objectVelocity.z + objectAcceleration, 0.5);
                 break;
-            case 'ArrowLeft': // Move left (decrease x)
+            case 'ArrowLeft':
                 objectVelocity.x = Math.max(objectVelocity.x - objectAcceleration, -0.5);
                 break;
-            case 'ArrowRight': // Move right (increase x)
+            case 'ArrowRight':
                 objectVelocity.x = Math.min(objectVelocity.x + objectAcceleration, 0.5);
                 break;
-            case 'z': // Increase height (y-axis)
+            case 'z':
                 objectVelocity.y = Math.min(objectVelocity.y + objectAcceleration, 0.5);
                 break;
-            case 'x': // Decrease height (y-axis)
+            case 'x':
                 objectVelocity.y = Math.max(objectVelocity.y - objectAcceleration, -0.5);
                 break;
         }
