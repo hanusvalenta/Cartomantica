@@ -87,6 +87,10 @@ let spawnTimer = null;
 
 let moveDistance = 1;
 
+const objectVelocity = { x: 0, y: 0, z: 0 };
+const objectAcceleration = 0.05;
+const objectFriction = 0.1;
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedObject = null;
@@ -204,6 +208,25 @@ document.addEventListener('click', (event) => {
         transformMenu.style.display = 'none';
     }
 })
+
+function updateObjectPosition() {
+    if (isEditMode && selectedObject) {
+        // Apply friction to velocities
+        objectVelocity.x *= (1 - objectFriction);
+        objectVelocity.y *= (1 - objectFriction);
+        objectVelocity.z *= (1 - objectFriction);
+
+        // Update position based on velocities
+        selectedObject.position.x += objectVelocity.x;
+        selectedObject.position.y += objectVelocity.y;
+        selectedObject.position.z += objectVelocity.z;
+
+        // Prevent objects from going below the ground level
+        if (selectedObject.position.y < 0) {
+            selectedObject.position.y = 0;
+        }
+    }
+}
 
 function attachTransformControls(object) {
     if (transformControls.object !== object) {
@@ -603,17 +626,25 @@ function onKeyDown(event) {
         if (event.key === 'r') rotationSpeed = Math.min(rotationSpeed + rotationAcceleration, maxRotationSpeed);
         if (event.key === 't') rotationSpeed = Math.max(rotationSpeed - rotationAcceleration, -maxRotationSpeed);
 
-        if (event.key === 'ArrowUp') {
-            selectedObject.position.z -= moveDistance;
-        }
-        if (event.key === 'ArrowDown') {
-            selectedObject.position.z += moveDistance;
-        }
-        if (event.key === 'ArrowLeft') {
-            selectedObject.position.x -= moveDistance;
-        }
-        if (event.key === 'ArrowRight') {
-            selectedObject.position.x += moveDistance;
+        switch (event.key) {
+            case 'ArrowUp': // Move forward (decrease z)
+                objectVelocity.z = Math.max(objectVelocity.z - objectAcceleration, -0.5);
+                break;
+            case 'ArrowDown': // Move backward (increase z)
+                objectVelocity.z = Math.min(objectVelocity.z + objectAcceleration, 0.5);
+                break;
+            case 'ArrowLeft': // Move left (decrease x)
+                objectVelocity.x = Math.max(objectVelocity.x - objectAcceleration, -0.5);
+                break;
+            case 'ArrowRight': // Move right (increase x)
+                objectVelocity.x = Math.min(objectVelocity.x + objectAcceleration, 0.5);
+                break;
+            case 'z': // Increase height (y-axis)
+                objectVelocity.y = Math.min(objectVelocity.y + objectAcceleration, 0.5);
+                break;
+            case 'x': // Decrease height (y-axis)
+                objectVelocity.y = Math.max(objectVelocity.y - objectAcceleration, -0.5);
+                break;
         }
     }
 
@@ -650,6 +681,12 @@ function onKeyUp(event) {
 
     if (event.key === 'q' || event.key === 'Q') cameraMovement.zoomIn = false;
     if (event.key === 'e' || event.key === 'E') cameraMovement.zoomOut = false;
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'z', 'x'].includes(event.key)) {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') objectVelocity.z = 0;
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') objectVelocity.x = 0;
+        if (event.key === 'z' || event.key === 'x') objectVelocity.y = 0;
+    }
 }
 
 function updateCameraPosition() {
@@ -678,6 +715,8 @@ function animate() {
 
     updateCameraPosition();
     const deltaTime = 0.05;
+
+    updateObjectPosition();
 
     updateSunPosition(deltaTime);
 
