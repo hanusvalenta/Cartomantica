@@ -4,7 +4,7 @@ export function createWaterMaterial() {
         uniforms: {
             time: { value: 0.0 },
             color: { value: new THREE.Color(0x4169E1) }, // Royal Blue for water
-            opacity: { value: 0.7 }
+            opacity: { value: 0.2 }
         },
         vertexShader: `
             varying vec2 vUv;

@@ -4,7 +4,7 @@ export function createPathMaterial() {
         uniforms: {
             time: { value: 0.0 },
             color: { value: new THREE.Color(0x8B4513) }, // Earthy brown color
-            opacity: { value: 0.8 }
+            opacity: { value: 0.3 }
         },
         vertexShader: `
             varying vec2 vUv;
