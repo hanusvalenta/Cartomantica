@@ -211,7 +211,6 @@ async function loadSceneFromFile(event) {
             case 'SphereGeometry':
                 geometry = new THREE.SphereGeometry();
                 break;
-            // Add other geometries as needed
             default:
                 console.warn(`Unknown geometry: ${data.geometry}`);
                 return;
