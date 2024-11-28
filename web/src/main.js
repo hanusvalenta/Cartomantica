@@ -167,9 +167,70 @@ document.getElementById('createBtn').addEventListener('click', () => {
     document.getElementById('ui').style.display = 'block';
 });
 
+saveBtn.addEventListener('click', saveScene);
+
+function saveScene() {
+    const sceneData = spawnedObjects.map(obj => ({
+        name: obj.name || 'Unnamed',
+        position: obj.position.toArray(),
+        rotation: obj.rotation.toArray(),
+        scale: obj.scale.toArray(),
+        geometry: obj.geometry ? obj.geometry.type : null,
+        material: obj.material ? obj.material.color.getHex() : null,
+    }));
+
+    const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'scene.json';
+    link.click();
+}
+
 document.getElementById('loadBtn').addEventListener('click', () => {
-    console.log('Load feature will be implemented later.');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', loadSceneFromFile);
+    input.click();
 });
+
+async function loadSceneFromFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const fileText = await file.text();
+    const sceneData = JSON.parse(fileText);
+
+    sceneData.forEach(data => {
+        let geometry, material, object;
+
+        switch (data.geometry) {
+            case 'BoxGeometry':
+                geometry = new THREE.BoxGeometry();
+                break;
+            case 'SphereGeometry':
+                geometry = new THREE.SphereGeometry();
+                break;
+            // Add other geometries as needed
+            default:
+                console.warn(`Unknown geometry: ${data.geometry}`);
+                return;
+        }
+
+        material = new THREE.MeshStandardMaterial({ color: data.material || 0xffffff });
+
+        object = new THREE.Mesh(geometry, material);
+        object.position.set(...data.position);
+        object.rotation.set(...data.rotation);
+        object.scale.set(...data.scale);
+        object.castShadow = true;
+
+        scene.add(object);
+        spawnedObjects.push(object);
+    });
+
+    console.log('Scene Loaded Successfully.');
+}
 
 document.addEventListener('click', (event) => {
     const objectList = document.getElementById('objectList');
