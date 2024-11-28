@@ -5,6 +5,9 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { populateObjectList } from './modules/populateObjectList.js';
 import { createHandDrawnOutline } from './modules/createHandDrawnOutline.js';
 
+import { createPathMaterial, createPathGeometry } from './shaders/pathShader.js';
+import { createWaterMaterial, createWaterGeometry } from './shaders/waterShader.js'
+
 const scene = new THREE.Scene();
 const loader = new GLTFLoader();
 scene.background = new THREE.Color(0xffffff);
@@ -152,12 +155,15 @@ document.getElementById('confirmSpawn').addEventListener('click', previewSelecte
 document.getElementById('createBtn').addEventListener('click', stopSpawningAndDelete);
 
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
-document.addEventListener('mousedown', onMouseDown, false);
-document.addEventListener('mousemove', onMouseMove, false);
+document.removeEventListener('mousedown', onMouseDown, false);
+document.addEventListener('mousedown', modifiedOnMouseDown, false);
+document.removeEventListener('mousemove', onMouseMove, false);
+document.addEventListener('mousemove', modifiedOnMouseMove, false);
 document.addEventListener('mouseup', onMouseUp, false);
 document.addEventListener('wheel', onMouseWheel, false);
 window.addEventListener('resize', onWindowResize, false);
-document.addEventListener('keydown', onKeyDown, false);
+document.removeEventListener('keydown', onKeyDown, false);
+document.addEventListener('keydown', modifiedOnKeyDown, false);
 document.addEventListener('keyup', onKeyUp, false);
 
 window.addEventListener('DOMContentLoaded', populateObjectList);
@@ -293,19 +299,20 @@ function attachTransformControls(object) {
 
 function toggleEditMode() {
     isEditMode = !isEditMode;
-    selectedObject = null;
+    
+    if (!isEditMode) {
+        // When turning off edit mode, detach transform controls and clear selected object
+        transformControls.detach();
+        selectedObject = null;
+    }
     isDeleteMode = false;
-
+    deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
-
     const transformMenu = document.getElementById('transformMenu');
     transformMenu.style.display = isEditMode ? 'block' : 'none';
-
-    if (!isEditMode) {
-        transformControls.detach();
-    }
 }
+
 
 let objectData = [];
 
@@ -608,6 +615,28 @@ function onMouseMove(event) {
         }
     }
 }
+function modifiedOnMouseMove(event) {
+    onMouseMove(event);
+    // If in curve mode and have at least one point, show potential next point
+    if (isCurveMode && curveModePoints.length > 0) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(ground);
+        if (intersects.length > 0) {
+            const point = intersects[0].point.clone();
+            point.y = 0.05;  // Slightly above ground
+            // Temporarily add potential point to draw preview
+            const tempPoints = [...curveModePoints, point];
+            
+            if (currentPathMesh) {
+                scene.remove(currentPathMesh);
+            }
+            currentPathMesh = createPath(tempPoints);
+            if (currentPathMesh) {
+                scene.add(currentPathMesh);
+            }
+        }
+    }
+}
 
 function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
@@ -658,6 +687,31 @@ function onMouseDown(event) {
         }
     }
 }
+function modifiedOnMouseDown(event) {
+    // If not in curve mode, use original mouse down logic
+    if (!isCurveMode) {
+        onMouseDown(event);
+        return;
+    }
+    // Prevent other interactions while drawing paths
+    if (event.button !== 0) return;  // Only left mouse button
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(ground);
+    if (intersects.length > 0) {
+        const point = intersects[0].point.clone();
+        point.y = 0.05;  // Slightly above ground
+        curveModePoints.push(point);
+        // Update or create path
+        if (currentPathMesh) {
+            scene.remove(currentPathMesh);
+        }
+        currentPathMesh = createPath(curveModePoints);
+        if (currentPathMesh) {
+            scene.add(currentPathMesh);
+        }
+    }
+}
+
 
 function onMouseUp() {
     isDraggingObject = false;
@@ -726,6 +780,29 @@ function onKeyDown(event) {
         }
     }
 }
+function modifiedOnKeyDown(event) {
+    // If path mode is active, 'Escape' key clears the current path
+    if (isCurveMode) {
+        if (event.key === 'Escape') {
+            clearPathDrawing();
+        }
+        
+        // 'Enter' key finalizes the path
+        if (event.key === 'Enter' && curveModePoints.length > 1) {
+            // Save the path permanently
+            if (currentPathMesh) {
+                paths.push(currentPathMesh);
+            }
+            
+            isCurveMode = false;
+            curvesBtn.classList.remove('active');
+            currentPathMesh = null;
+            curveModePoints = [];
+        }
+    }
+    // Call the original key down handler for other functionality
+    onKeyDown(event);
+}
 
 function onKeyUp(event) {
     if (event.key === 'r' || event.key === 't') rotationSpeed = 0;
@@ -765,6 +842,95 @@ function updateCameraPosition() {
 
     camera.zoom = Math.max(0.5, Math.min(camera.zoom + zoomVelocity.zoom, 5));
     camera.updateProjectionMatrix();
+}
+
+let isCurveMode = false;
+let curveModePoints = [];
+let currentPathMesh = null;
+let paths = [];  // Store created paths
+let animationTime = 0;
+const curvesBtn = document.createElement('button');
+curvesBtn.id = 'path';
+curvesBtn.textContent = 'Path';
+document.getElementById('menuContainer').appendChild(curvesBtn);
+const water = document.createElement('button');
+water.id = 'water';
+water.textContent = 'Water';
+document.getElementById('menuContainer').appendChild(water);
+curvesBtn.addEventListener('click', () => {
+    isCurveMode = !isCurveMode;
+    curvesBtn.classList.toggle('active', isCurveMode);
+    
+    // Reset any existing drawing
+    if (curveModePoints.length > 0) {
+        clearPathDrawing();
+    }
+    // Deactivate other modes
+    isEditMode = false;
+    isDeleteMode = false;
+    deleteBtn.classList.remove('active');
+    const editBtn = document.getElementById('editBtn');
+    editBtn.classList.remove('active');
+});
+water.addEventListener('click', () => {
+    isCurveMode = !isCurveMode;
+    water.classList.toggle('active', isCurveMode);
+    
+    // Reset any existing drawing
+    if (curveModePoints.length > 0) {
+        clearPathDrawing();
+    }
+    // Deactivate other modes
+    isEditMode = false;
+    isDeleteMode = false;
+    deleteBtn.classList.remove('active');
+    const editBtn = document.getElementById('editBtn');
+    editBtn.classList.remove('active');
+});
+function clearPathDrawing() {
+    if (currentPathMesh) {
+        scene.remove(currentPathMesh);
+        currentPathMesh = null;
+    }
+    curveModePoints = [];
+}
+function createPath(points) {
+    if (points.length < 2) return null;
+    // Adjust points to be at ground level with slight elevation
+    const adjustedPoints = points.map(point => {
+        const newPoint = point.clone();
+        newPoint.y = 0.05;  // Slightly above ground
+        return newPoint;
+    });
+    // Check which mode is active and use corresponding shader
+    const pathGeometry = isCurveMode 
+        ? createPathGeometry(adjustedPoints, 1)  // Path shader
+        : createWaterGeometry(adjustedPoints, 1); // Water shader
+    
+    const pathMaterial = isCurveMode 
+        ? createPathMaterial()  // Path material
+        : createWaterMaterial(); // Water material
+    
+    // Create mesh
+    const pathMesh = new THREE.Mesh(pathGeometry, pathMaterial);
+    return pathMesh;
+}
+function createCurveLine(points) {
+    if (points.length < 2) return null;
+    // Create a curve through the points
+    const curve = new THREE.CatmullRomCurve3(points);
+    
+    // Interpolate more points along the curve for smooth rendering
+    const points2 = curve.getPoints(50);
+    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points2);
+    const lineMaterial = new THREE.LineBasicMaterial({ 
+        color: 0x000000,  // Black color
+        linewidth: 5      // Thicker line
+    });
+    
+    const curveLine = new THREE.Line(lineGeometry, lineMaterial);
+    curveLine.position.y = 0.1;  // Slightly above ground to prevent z-fighting
+    return curveLine;
 }
 
 function animate() {
