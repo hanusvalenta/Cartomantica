@@ -128,7 +128,8 @@ const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
 const daytimeSlider = document.getElementById('daytimeSlider');
 
-const curvesBtn = document.createElement('button');
+const curvesBtn = document.getElementById('path');
+const water = document.getElementById('water');
 
 let isMenuVisible = true;
 let isDeleteMode = false;
@@ -138,12 +139,6 @@ let curveModePoints = [];
 let currentPathMesh = null;
 let paths = []; 
 let animationTime = 0;
-
-curvesBtn.id = 'path';
-curvesBtn.textContent = 'Path';
-const water = document.createElement('button');
-water.id = 'water';
-water.textContent = 'Water';
 
 toggleMenuBtn.addEventListener('click', () => {
     isMenuVisible = !isMenuVisible;
@@ -158,9 +153,6 @@ toggleMenuBtn.addEventListener('click', () => {
         toggleMenuBtn.textContent = '→';
     }
 });
-
-document.getElementById('menuContainer').appendChild(water);
-document.getElementById('menuContainer').appendChild(curvesBtn);
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
     isDeleteMode = false;
