@@ -630,7 +630,11 @@ function modifiedOnMouseMove(event) {
             if (currentPathMesh) {
                 scene.remove(currentPathMesh);
             }
-            currentPathMesh = createPath(tempPoints);
+            
+            // Determine if we're in water or path mode
+            const isWaterMode = water.classList.contains('active');
+            currentPathMesh = createPath(tempPoints, isWaterMode);
+            
             if (currentPathMesh) {
                 scene.add(currentPathMesh);
             }
@@ -705,7 +709,11 @@ function modifiedOnMouseDown(event) {
         if (currentPathMesh) {
             scene.remove(currentPathMesh);
         }
-        currentPathMesh = createPath(curveModePoints);
+        
+        // Determine if we're in water or path mode
+        const isWaterMode = water.classList.contains('active');
+        currentPathMesh = createPath(curveModePoints, isWaterMode);
+        
         if (currentPathMesh) {
             scene.add(currentPathMesh);
         }
@@ -858,13 +866,18 @@ water.id = 'water';
 water.textContent = 'Water';
 document.getElementById('menuContainer').appendChild(water);
 curvesBtn.addEventListener('click', () => {
+    // Toggle curve mode
     isCurveMode = !isCurveMode;
     curvesBtn.classList.toggle('active', isCurveMode);
+    
+    // Deactivate water mode
+    water.classList.remove('active');
     
     // Reset any existing drawing
     if (curveModePoints.length > 0) {
         clearPathDrawing();
     }
+    
     // Deactivate other modes
     isEditMode = false;
     isDeleteMode = false;
@@ -872,14 +885,19 @@ curvesBtn.addEventListener('click', () => {
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.remove('active');
 });
+
 water.addEventListener('click', () => {
     isCurveMode = !isCurveMode;
     water.classList.toggle('active', isCurveMode);
+    
+    // Deactivate curves mode
+    curvesBtn.classList.remove('active');
     
     // Reset any existing drawing
     if (curveModePoints.length > 0) {
         clearPathDrawing();
     }
+    
     // Deactivate other modes
     isEditMode = false;
     isDeleteMode = false;
@@ -894,43 +912,34 @@ function clearPathDrawing() {
     }
     curveModePoints = [];
 }
-function createPath(points) {
+function createPath(points, isWater = false) {
     if (points.length < 2) return null;
+    
     // Adjust points to be at ground level with slight elevation
     const adjustedPoints = points.map(point => {
         const newPoint = point.clone();
-        newPoint.y = 0.05;  // Slightly above ground
+        newPoint.y = isWater ? 0.1 : 0.05;  // Water slightly higher
         return newPoint;
     });
-    // Check which mode is active and use corresponding shader
-    const pathGeometry = isCurveMode 
-        ? createPathGeometry(adjustedPoints, 1)  // Path shader
-        : createWaterGeometry(adjustedPoints, 1); // Water shader
     
-    const pathMaterial = isCurveMode 
-        ? createPathMaterial()  // Path material
-        : createWaterMaterial(); // Water material
+    // Create geometry and material based on type
+    const pathGeometry = isWater 
+        ? createWaterGeometry(adjustedPoints, 1)  // Water shader geometry
+        : createPathGeometry(adjustedPoints, 1);  // Path shader geometry
     
-    // Create mesh
+    const pathMaterial = isWater 
+        ? createWaterMaterial()  // Water shader material
+        : createPathMaterial();  // Path shader material
+    
     const pathMesh = new THREE.Mesh(pathGeometry, pathMaterial);
+    
+    // For water, set render order to be above path shader but below other objects
+    if (isWater) {
+        pathMesh.renderOrder = 2;  // Higher than path shader, lower than default objects
+        pathMaterial.depthTest = true;  // Re-enable depth testing
+    }
+    
     return pathMesh;
-}
-function createCurveLine(points) {
-    if (points.length < 2) return null;
-    // Create a curve through the points
-    const curve = new THREE.CatmullRomCurve3(points);
-    
-    // Interpolate more points along the curve for smooth rendering
-    const points2 = curve.getPoints(50);
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points2);
-    const lineMaterial = new THREE.LineBasicMaterial({ 
-        color: 0x000000,  // Black color
-        linewidth: 5      // Thicker line
-    });
-    
-    const curveLine = new THREE.Line(lineGeometry, lineMaterial);
-    curveLine.position.y = 0.1;  // Slightly above ground to prevent z-fighting
-    return curveLine;
 }
 
 function animate() {
