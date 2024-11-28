@@ -128,8 +128,22 @@ const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
 const daytimeSlider = document.getElementById('daytimeSlider');
 
+const curvesBtn = document.createElement('button');
+
 let isMenuVisible = true;
 let isDeleteMode = false;
+
+let isCurveMode = false;
+let curveModePoints = [];
+let currentPathMesh = null;
+let paths = []; 
+let animationTime = 0;
+
+curvesBtn.id = 'path';
+curvesBtn.textContent = 'Path';
+const water = document.createElement('button');
+water.id = 'water';
+water.textContent = 'Water';
 
 toggleMenuBtn.addEventListener('click', () => {
     isMenuVisible = !isMenuVisible;
@@ -144,6 +158,9 @@ toggleMenuBtn.addEventListener('click', () => {
         toggleMenuBtn.textContent = '→';
     }
 });
+
+document.getElementById('menuContainer').appendChild(water);
+document.getElementById('menuContainer').appendChild(curvesBtn);
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
     isDeleteMode = false;
@@ -301,7 +318,6 @@ function toggleEditMode() {
     isEditMode = !isEditMode;
     
     if (!isEditMode) {
-        // When turning off edit mode, detach transform controls and clear selected object
         transformControls.detach();
         selectedObject = null;
     }
@@ -617,21 +633,18 @@ function onMouseMove(event) {
 }
 function modifiedOnMouseMove(event) {
     onMouseMove(event);
-    // If in curve mode and have at least one point, show potential next point
     if (isCurveMode && curveModePoints.length > 0) {
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             const point = intersects[0].point.clone();
-            point.y = 0.05;  // Slightly above ground
-            // Temporarily add potential point to draw preview
+            point.y = 0.05;
             const tempPoints = [...curveModePoints, point];
             
             if (currentPathMesh) {
                 scene.remove(currentPathMesh);
             }
             
-            // Determine if we're in water or path mode
             const isWaterMode = water.classList.contains('active');
             currentPathMesh = createPath(tempPoints, isWaterMode);
             
@@ -692,25 +705,22 @@ function onMouseDown(event) {
     }
 }
 function modifiedOnMouseDown(event) {
-    // If not in curve mode, use original mouse down logic
     if (!isCurveMode) {
         onMouseDown(event);
         return;
     }
-    // Prevent other interactions while drawing paths
-    if (event.button !== 0) return;  // Only left mouse button
+
+    if (event.button !== 0) return;
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObject(ground);
     if (intersects.length > 0) {
         const point = intersects[0].point.clone();
-        point.y = 0.05;  // Slightly above ground
+        point.y = 0.05;
         curveModePoints.push(point);
-        // Update or create path
         if (currentPathMesh) {
             scene.remove(currentPathMesh);
         }
         
-        // Determine if we're in water or path mode
         const isWaterMode = water.classList.contains('active');
         currentPathMesh = createPath(curveModePoints, isWaterMode);
         
@@ -789,15 +799,12 @@ function onKeyDown(event) {
     }
 }
 function modifiedOnKeyDown(event) {
-    // If path mode is active, 'Escape' key clears the current path
     if (isCurveMode) {
         if (event.key === 'Escape') {
             clearPathDrawing();
         }
         
-        // 'Enter' key finalizes the path
         if (event.key === 'Enter' && curveModePoints.length > 1) {
-            // Save the path permanently
             if (currentPathMesh) {
                 paths.push(currentPathMesh);
             }
@@ -808,7 +815,6 @@ function modifiedOnKeyDown(event) {
             curveModePoints = [];
         }
     }
-    // Call the original key down handler for other functionality
     onKeyDown(event);
 }
 
@@ -852,33 +858,16 @@ function updateCameraPosition() {
     camera.updateProjectionMatrix();
 }
 
-let isCurveMode = false;
-let curveModePoints = [];
-let currentPathMesh = null;
-let paths = [];  // Store created paths
-let animationTime = 0;
-const curvesBtn = document.createElement('button');
-curvesBtn.id = 'path';
-curvesBtn.textContent = 'Path';
-document.getElementById('menuContainer').appendChild(curvesBtn);
-const water = document.createElement('button');
-water.id = 'water';
-water.textContent = 'Water';
-document.getElementById('menuContainer').appendChild(water);
 curvesBtn.addEventListener('click', () => {
-    // Toggle curve mode
     isCurveMode = !isCurveMode;
     curvesBtn.classList.toggle('active', isCurveMode);
     
-    // Deactivate water mode
     water.classList.remove('active');
     
-    // Reset any existing drawing
     if (curveModePoints.length > 0) {
         clearPathDrawing();
     }
     
-    // Deactivate other modes
     isEditMode = false;
     isDeleteMode = false;
     deleteBtn.classList.remove('active');
@@ -890,21 +879,19 @@ water.addEventListener('click', () => {
     isCurveMode = !isCurveMode;
     water.classList.toggle('active', isCurveMode);
     
-    // Deactivate curves mode
     curvesBtn.classList.remove('active');
     
-    // Reset any existing drawing
     if (curveModePoints.length > 0) {
         clearPathDrawing();
     }
     
-    // Deactivate other modes
     isEditMode = false;
     isDeleteMode = false;
     deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.remove('active');
 });
+
 function clearPathDrawing() {
     if (currentPathMesh) {
         scene.remove(currentPathMesh);
@@ -912,31 +899,29 @@ function clearPathDrawing() {
     }
     curveModePoints = [];
 }
+
 function createPath(points, isWater = false) {
     if (points.length < 2) return null;
     
-    // Adjust points to be at ground level with slight elevation
     const adjustedPoints = points.map(point => {
         const newPoint = point.clone();
-        newPoint.y = isWater ? 0.1 : 0.05;  // Water slightly higher
+        newPoint.y = isWater ? 0.1 : 0.05;
         return newPoint;
     });
     
-    // Create geometry and material based on type
     const pathGeometry = isWater 
-        ? createWaterGeometry(adjustedPoints, 1)  // Water shader geometry
-        : createPathGeometry(adjustedPoints, 1);  // Path shader geometry
+        ? createWaterGeometry(adjustedPoints, 1)
+        : createPathGeometry(adjustedPoints, 1);
     
     const pathMaterial = isWater 
-        ? createWaterMaterial()  // Water shader material
-        : createPathMaterial();  // Path shader material
+        ? createWaterMaterial()
+        : createPathMaterial();
     
     const pathMesh = new THREE.Mesh(pathGeometry, pathMaterial);
     
-    // For water, set render order to be above path shader but below other objects
     if (isWater) {
-        pathMesh.renderOrder = 2;  // Higher than path shader, lower than default objects
-        pathMaterial.depthTest = true;  // Re-enable depth testing
+        pathMesh.renderOrder = 2;
+        pathMaterial.depthTest = true;
     }
     
     return pathMesh;
