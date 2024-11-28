@@ -3,7 +3,7 @@ export function createPathMaterial() {
     return new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0.0 },
-            color: { value: new THREE.Color(0x8B4513) }, // Earthy brown color
+            color: { value: new THREE.Color(0x8B4513) },
             opacity: { value: 0.8 }
         },
         vertexShader: `
@@ -53,12 +53,11 @@ export function createPathMaterial() {
     });
 }
 export function createPathGeometry(points, width = 1) {
-    // Create a tube geometry along the curve points
     const curve = new THREE.CatmullRomCurve3(points);
     return new THREE.TubeGeometry(curve, 
-        points.length * 200,  // segments
-        width,               // radius
-        80,                   // radial segments
-        false                // closed
+        points.length * 200,
+        width,
+        80,
+        false
     );
 }

@@ -3,7 +3,7 @@ export function createWaterMaterial() {
     return new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0.0 },
-            color: { value: new THREE.Color(0x4169E1) }, // Royal Blue for water
+            color: { value: new THREE.Color(0x4169E1) },
             opacity: { value: 0.7 }
         },
         vertexShader: `
@@ -94,12 +94,11 @@ export function createWaterMaterial() {
     });
 }
 export function createWaterGeometry(points, width = 1) {
-    // Create a tube geometry along the curve points
     const curve = new THREE.CatmullRomCurve3(points);
     return new THREE.TubeGeometry(curve, 
-        points.length * 200,  // segments
-        width,               // radius
-        80,                   // radial segments
-        false                // closed
+        points.length * 200,
+        width,
+        80,
+        false
     );
 }
