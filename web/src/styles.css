@@ -224,7 +224,21 @@ button.active {
     line-height: 1.5;
 }
 
-.menu {
+.pathMenu-button {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    background-color: #d5d5d5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.pathMenu-button:hover {
+    background-color: #007B9E;
+}
+
+.pathMenu {
     display: none;
     position: absolute;
     background-color: white;
@@ -235,25 +249,39 @@ button.active {
     padding: 10px;
 }
 
-.menu ul {
+.pathMenu ul {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.menu ul li {
+.pathMenu ul li {
     padding: 10px;
     cursor: pointer;
 }
 
-.menu ul li:hover {
+.pathMenu ul li:hover {
     background-color: #f1f1f1;
 }
 
-#pathmenu-button {
-    background-color: #008CBA;
+.pathMenu-item {
+    width: 100%;
+    padding: 8px 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 16px;
 }
 
-#pathmenu-button:hover {
-    background-color: #007B9E;
+.pathMenu-item:hover {
+    background-color: #f1f1f1;
+}
+
+#pathmenuButton {
+    background-color: #d5d5d5;
+}
+
+#pathmenuButton:hover {
+    background-color: #d5d5d5;
 }

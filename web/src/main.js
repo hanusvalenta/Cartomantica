@@ -128,7 +128,7 @@ const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
 const daytimeSlider = document.getElementById('daytimeSlider');
 
-const pathmenuButton = document.getElementById('pathmenu-button');
+const pathmenuButton = document.getElementById('pathMenuButton');
 const pathMenu = document.getElementById('pathMenu');
 const curvesBtn = document.getElementById('path');
 const water = document.getElementById('water');
