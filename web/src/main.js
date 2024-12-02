@@ -128,6 +128,8 @@ const toggleMenuBtn = document.getElementById('toggleMenuBtn');
 const menuContainer = document.getElementById('menuContainer');
 const daytimeSlider = document.getElementById('daytimeSlider');
 
+const pathmenuButton = document.getElementById('pathmenu-button');
+const pathMenu = document.getElementById('pathMenu');
 const curvesBtn = document.getElementById('path');
 const water = document.getElementById('water');
 
@@ -208,6 +210,25 @@ document.getElementById('loadBtn').addEventListener('click', () => {
     input.addEventListener('change', loadSceneFromFile);
     input.click();
 });
+
+function showPathMenu(event) {
+    const rect = event.target.getBoundingClientRect();
+
+    pathMenu.style.left = `${rect.left}px`;
+    pathMenu.style.top = `${rect.bottom + window.scrollY}px`;
+
+    pathMenu.style.display = 'block';
+}
+
+function hidePathMenu(event) {
+    if (!pathMenu.contains(event.target) && event.target !== pathmenuButton) {
+        pathMenu.style.display = 'none';
+    }
+}
+
+pathmenuButton.addEventListener('click', showPathMenu);
+
+document.addEventListener('click', hidePathMenu);
 
 async function loadSceneFromFile(event) {
     const file = event.target.files[0];
