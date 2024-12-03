@@ -491,9 +491,11 @@ function placeObject() {
 }
 
 document.getElementById('exportBtn').addEventListener('click', () => {
-    isEditMode = false;
-    isDeleteMode = false;
-    
+    const transformControlsObject = transformControls.object;
+    if (transformControlsObject) {
+        transformControls.detach();
+    }
+
     renderer.render(scene, camera);
 
     const canvas = renderer.domElement;
