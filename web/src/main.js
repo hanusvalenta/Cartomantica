@@ -270,10 +270,7 @@ function createWallMaterial() {
     });
 }
 
-const wallBtn = document.createElement('button');
-wallBtn.id = 'wall';
-wallBtn.textContent = 'Wall';
-document.getElementById('menuContainer').appendChild(wallBtn);
+const wallBtn = document.getElementById('wall');
 
 let isWallMode = false;
 let wallModePoints = [];
