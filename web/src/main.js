@@ -490,6 +490,22 @@ function placeObject() {
     }
 }
 
+document.getElementById('exportBtn').addEventListener('click', () => {
+    isEditMode = false;
+    isDeleteMode = false;
+    
+    renderer.render(scene, camera);
+
+    const canvas = renderer.domElement;
+
+    canvas.toBlob((blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'screenshot.png';
+        link.click();
+    }, 'image/png');
+});
+
 const nightColor = new THREE.Color(0x4040ff);
 const sunriseColor = new THREE.Color(0xffa07a);
 const dayColor = new THREE.Color(0xffffff);
