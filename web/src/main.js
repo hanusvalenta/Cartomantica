@@ -156,14 +156,14 @@ document.getElementById('createBtn').addEventListener('click', stopSpawningAndDe
 
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
 document.removeEventListener('mousedown', onMouseDown, false);
-document.addEventListener('mousedown', modifiedOnMouseDown, false);
+document.addEventListener('mousedown', mergedModifiedOnMouseDown, false);
 document.removeEventListener('mousemove', onMouseMove, false);
-document.addEventListener('mousemove', modifiedOnMouseMove, false);
+document.addEventListener('mousemove', mergedModifiedOnMouseMove, false);
 document.addEventListener('mouseup', onMouseUp, false);
 document.addEventListener('wheel', onMouseWheel, false);
 window.addEventListener('resize', onWindowResize, false);
 document.removeEventListener('keydown', onKeyDown, false);
-document.addEventListener('keydown', modifiedOnKeyDown, false);
+document.addEventListener('keydown', mergedModifiedOnKeyDown, false);
 document.addEventListener('keyup', onKeyUp, false);
 
 window.addEventListener('DOMContentLoaded', populateObjectList);
@@ -691,6 +691,7 @@ function onMouseDown(event) {
         }
     }
 }
+<<<<<<< Updated upstream
 function modifiedOnMouseDown(event) {
     // If not in curve mode, use original mouse down logic
     if (!isCurveMode) {
@@ -699,10 +700,21 @@ function modifiedOnMouseDown(event) {
     }
     // Prevent other interactions while drawing paths
     if (event.button !== 0) return;  // Only left mouse button
+=======
+function mergedModifiedOnMouseDown(event) {
+    if (!(isCurveMode || isWallMode)) {
+        onMouseDown(event);
+        return;
+    }
+
+    if (event.button !== 0) return;
+    
+>>>>>>> Stashed changes
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObject(ground);
     if (intersects.length > 0) {
         const point = intersects[0].point.clone();
+<<<<<<< Updated upstream
         point.y = 0.05;  // Slightly above ground
         curveModePoints.push(point);
         // Update or create path
@@ -716,6 +728,36 @@ function modifiedOnMouseDown(event) {
         
         if (currentPathMesh) {
             scene.add(currentPathMesh);
+=======
+        point.y = 0.05;
+        
+        if (isCurveMode) {
+            curveModePoints.push(point);
+            if (currentPathMesh) {
+                scene.remove(currentPathMesh);
+            }
+            
+            const isWaterMode = water.classList.contains('active');
+            currentPathMesh = createPath(curveModePoints, isWaterMode);
+            
+            if (currentPathMesh) {
+                scene.add(currentPathMesh);
+            }
+        }
+        
+        if (isWallMode) {
+            wallModePoints.push(point);
+            
+            if (currentWallMesh) {
+                scene.remove(currentWallMesh);
+            }
+            
+            currentWallMesh = createWall(wallModePoints);
+            
+            if (currentWallMesh) {
+                scene.add(currentWallMesh);
+            }
+>>>>>>> Stashed changes
         }
     }
 }
@@ -940,6 +982,202 @@ function createPath(points, isWater = false) {
     }
     
     return pathMesh;
+}
+
+function createWallGeometry(points, height = 0.2, width = 6) {
+    if (points.length < 2) return null;
+
+    // Create a curve from the points
+    const curve = new THREE.CatmullRomCurve3(points);
+    
+    // Generate wall geometry using ExtrudeGeometry
+    const wallShape = new THREE.Shape();
+    wallShape.moveTo(-width/2, 0);
+    wallShape.lineTo(width/2, 0);
+    wallShape.lineTo(width/2, height);
+    wallShape.lineTo(-width/2, height);
+    wallShape.closePath();
+
+    const extrudeSettings = {
+        steps: points.length * 10,
+        bevelEnabled: false,
+        extrudePath: curve
+    };
+
+    const geometry = new THREE.ExtrudeGeometry(wallShape, extrudeSettings);
+    
+    return geometry;
+}
+
+function createWallMaterial() {
+    return new THREE.MeshStandardMaterial({ 
+        color: 0xB0B0B0,  // Stone/concrete gray
+        roughness: 0.7,
+        metalness: 0.2
+    });
+}
+
+// Modify the existing code to add wall tool functionality
+const wallBtn = document.createElement('button');
+wallBtn.id = 'wall';
+wallBtn.textContent = 'Wall';
+document.getElementById('menuContainer').appendChild(wallBtn);
+
+let isWallMode = false;
+let wallModePoints = [];
+let currentWallMesh = null;
+let walls = [];
+
+wallBtn.addEventListener('click', () => {
+    isWallMode = !isWallMode;
+    wallBtn.classList.toggle('active', isWallMode);
+    
+    // Disable other modes
+    curvesBtn.classList.remove('active');
+    water.classList.remove('active');
+    isCurveMode = false;
+    
+    if (wallModePoints.length > 0) {
+        clearWallDrawing();
+    }
+    
+    isEditMode = false;
+    isDeleteMode = false;
+    deleteBtn.classList.remove('active');
+    const editBtn = document.getElementById('editBtn');
+    editBtn.classList.remove('active');
+});
+
+function clearWallDrawing() {
+    if (currentWallMesh) {
+        scene.remove(currentWallMesh);
+        currentWallMesh = null;
+    }
+    wallModePoints = [];
+}
+
+function createWall(points) {
+    if (points.length < 2) return null;
+    
+    // Adjust points to be at ground level
+    const adjustedPoints = points.map(point => {
+        const newPoint = point.clone();
+        newPoint.y = 0.05;  // Slightly above ground
+        return newPoint;
+    });
+    
+    const wallGeometry = createWallGeometry(adjustedPoints);
+    const wallMaterial = createWallMaterial();
+    
+    const wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
+    wallMesh.castShadow = true;
+    wallMesh.receiveShadow = true;
+    
+    return wallMesh;
+}
+
+function mergedModifiedOnMouseMove(event) {
+    onMouseMove(event);
+    
+    if ((isCurveMode || isWallMode) && (curveModePoints.length > 0 || wallModePoints.length > 0)) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(ground);
+        if (intersects.length > 0) {
+            const point = intersects[0].point.clone();
+            point.y = 0.05;
+            
+            if (isCurveMode) {
+                const tempPoints = [...curveModePoints, point];
+                
+                if (currentPathMesh) {
+                    scene.remove(currentPathMesh);
+                }
+                
+                const isWaterMode = water.classList.contains('active');
+                currentPathMesh = createPath(tempPoints, isWaterMode);
+                
+                if (currentPathMesh) {
+                    scene.add(currentPathMesh);
+                }
+            }
+            
+            if (isWallMode) {
+                const tempPoints = [...wallModePoints, point];
+                
+                if (currentWallMesh) {
+                    scene.remove(currentWallMesh);
+                }
+                
+                currentWallMesh = createWall(tempPoints);
+                
+                if (currentWallMesh) {
+                    scene.add(currentWallMesh);
+                }
+            }
+        }
+    }
+}
+
+// Modify the existing modifiedOnMouseDown function
+function extendedModifiedOnMouseDown(event) {
+    if (!isWallMode) {
+        modifiedOnMouseDown(event);
+        return;
+    }
+
+    if (event.button !== 0) return;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(ground);
+    if (intersects.length > 0) {
+        const point = intersects[0].point.clone();
+        point.y = 0.05;
+        wallModePoints.push(point);
+        
+        if (currentWallMesh) {
+            scene.remove(currentWallMesh);
+        }
+        
+        currentWallMesh = createWall(wallModePoints);
+        
+        if (currentWallMesh) {
+            scene.add(currentWallMesh);
+        }
+    }
+}
+function mergedModifiedOnKeyDown(event) {
+    if (isCurveMode || isWallMode) {
+        if (event.key === 'Escape') {
+            if (isCurveMode) {
+                clearPathDrawing();
+            } else if (isWallMode) {
+                clearWallDrawing();
+            }
+        }
+        
+        if (event.key === 'Enter') {
+            if (isCurveMode && curveModePoints.length > 1) {
+                if (currentPathMesh) {
+                    paths.push(currentPathMesh);
+                }
+                
+                isCurveMode = false;
+                curvesBtn.classList.remove('active');
+                currentPathMesh = null;
+                curveModePoints = [];
+            }
+            
+            if (isWallMode && wallModePoints.length > 1) {
+                if (currentWallMesh) {
+                    walls.push(currentWallMesh);
+                    currentWallMesh = null;
+                    wallModePoints = [];
+                    isWallMode = false;
+                    wallBtn.classList.remove('active');
+                }
+            }
+        }
+    }
+    onKeyDown(event);
 }
 
 function animate() {
