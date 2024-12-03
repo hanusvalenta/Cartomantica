@@ -167,14 +167,14 @@ document.getElementById('createBtn').addEventListener('click', stopSpawningAndDe
 
 document.addEventListener('contextmenu', (e) => e.preventDefault(), false);
 document.removeEventListener('mousedown', onMouseDown, false);
-document.addEventListener('mousedown', modifiedOnMouseDown, false);
+document.addEventListener('mousedown', mergedModifiedOnMouseDown, false);
 document.removeEventListener('mousemove', onMouseMove, false);
-document.addEventListener('mousemove', modifiedOnMouseMove, false);
+document.addEventListener('mousemove', mergedModifiedOnMouseMove, false);
 document.addEventListener('mouseup', onMouseUp, false);
 document.addEventListener('wheel', onMouseWheel, false);
 window.addEventListener('resize', onWindowResize, false);
 document.removeEventListener('keydown', onKeyDown, false);
-document.addEventListener('keydown', modifiedOnKeyDown, false);
+document.addEventListener('keydown', mergedModifiedOnKeyDown, false);
 document.addEventListener('keyup', onKeyUp, false);
 
 window.addEventListener('DOMContentLoaded', populateObjectList);
@@ -210,6 +210,121 @@ document.getElementById('loadBtn').addEventListener('click', () => {
     input.addEventListener('change', loadSceneFromFile);
     input.click();
 });
+
+function createPath(points, isWater = false) {
+    if (points.length < 2) return null;
+    
+    const adjustedPoints = points.map(point => {
+        const newPoint = point.clone();
+        newPoint.y = isWater ? 0.1 : 0.05;
+        return newPoint;
+    });
+    
+    const pathGeometry = isWater 
+        ? createWaterGeometry(adjustedPoints, 1)
+        : createPathGeometry(adjustedPoints, 1);
+    
+    const pathMaterial = isWater 
+        ? createWaterMaterial()
+        : createPathMaterial();
+    
+    const pathMesh = new THREE.Mesh(pathGeometry, pathMaterial);
+    
+    if (isWater) {
+        pathMesh.renderOrder = 2;
+        pathMaterial.depthTest = true;
+    }
+    
+    return pathMesh;
+}
+
+
+function createWallGeometry(points, height = 0.2, width = 6) {
+    if (points.length < 2) return null;
+
+    const curve = new THREE.CatmullRomCurve3(points);
+    
+    const wallShape = new THREE.Shape();
+    wallShape.moveTo(-width/2, 0);
+    wallShape.lineTo(width/2, 0);
+    wallShape.lineTo(width/2, height);
+    wallShape.lineTo(-width/2, height);
+    wallShape.closePath();
+
+    const extrudeSettings = {
+        steps: points.length * 10,
+        bevelEnabled: false,
+        extrudePath: curve
+    };
+
+    const geometry = new THREE.ExtrudeGeometry(wallShape, extrudeSettings);
+    
+    return geometry;
+}
+
+function createWallMaterial() {
+    return new THREE.MeshStandardMaterial({ 
+        color: 0xB0B0B0,
+        roughness: 0.7,
+        metalness: 0.2
+    });
+}
+
+const wallBtn = document.createElement('button');
+wallBtn.id = 'wall';
+wallBtn.textContent = 'Wall';
+document.getElementById('menuContainer').appendChild(wallBtn);
+
+let isWallMode = false;
+let wallModePoints = [];
+let currentWallMesh = null;
+let walls = [];
+
+wallBtn.addEventListener('click', () => {
+    isWallMode = !isWallMode;
+    wallBtn.classList.toggle('active', isWallMode);
+    
+    curvesBtn.classList.remove('active');
+    water.classList.remove('active');
+    isCurveMode = false;
+    
+    if (wallModePoints.length > 0) {
+        clearWallDrawing();
+    }
+    
+    isEditMode = false;
+    isDeleteMode = false;
+    deleteBtn.classList.remove('active');
+    const editBtn = document.getElementById('editBtn');
+    editBtn.classList.remove('active');
+});
+
+function clearWallDrawing() {
+    if (currentWallMesh) {
+        scene.remove(currentWallMesh);
+        currentWallMesh = null;
+    }
+    wallModePoints = [];
+}
+
+function createWall(points) {
+    if (points.length < 2) return null;
+    
+    const adjustedPoints = points.map(point => {
+        const newPoint = point.clone();
+        newPoint.y = 0.05;
+        return newPoint;
+    });
+    
+    const wallGeometry = createWallGeometry(adjustedPoints);
+    const wallMaterial = createWallMaterial();
+    
+    const wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
+    wallMesh.castShadow = true;
+    wallMesh.receiveShadow = true;
+    
+    return wallMesh;
+}
 
 function showPathMenu(event) {
     const rect = event.target.getBoundingClientRect();
@@ -662,29 +777,6 @@ function onMouseMove(event) {
         }
     }
 }
-function modifiedOnMouseMove(event) {
-    onMouseMove(event);
-    if (isCurveMode && curveModePoints.length > 0) {
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(ground);
-        if (intersects.length > 0) {
-            const point = intersects[0].point.clone();
-            point.y = 0.05;
-            const tempPoints = [...curveModePoints, point];
-            
-            if (currentPathMesh) {
-                scene.remove(currentPathMesh);
-            }
-            
-            const isWaterMode = water.classList.contains('active');
-            currentPathMesh = createPath(tempPoints, isWaterMode);
-            
-            if (currentPathMesh) {
-                scene.add(currentPathMesh);
-            }
-        }
-    }
-}
 
 function onMouseDown(event) {
     raycaster.setFromCamera(mouse, camera);
@@ -735,32 +827,6 @@ function onMouseDown(event) {
         }
     }
 }
-function modifiedOnMouseDown(event) {
-    if (!isCurveMode) {
-        onMouseDown(event);
-        return;
-    }
-
-    if (event.button !== 0) return;
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(ground);
-    if (intersects.length > 0) {
-        const point = intersects[0].point.clone();
-        point.y = 0.05;
-        curveModePoints.push(point);
-        if (currentPathMesh) {
-            scene.remove(currentPathMesh);
-        }
-        
-        const isWaterMode = water.classList.contains('active');
-        currentPathMesh = createPath(curveModePoints, isWaterMode);
-        
-        if (currentPathMesh) {
-            scene.add(currentPathMesh);
-        }
-    }
-}
-
 
 function onMouseUp() {
     isDraggingObject = false;
@@ -829,25 +895,6 @@ function onKeyDown(event) {
         }
     }
 }
-function modifiedOnKeyDown(event) {
-    if (isCurveMode) {
-        if (event.key === 'Escape') {
-            clearPathDrawing();
-        }
-        
-        if (event.key === 'Enter' && curveModePoints.length > 1) {
-            if (currentPathMesh) {
-                paths.push(currentPathMesh);
-            }
-            
-            isCurveMode = false;
-            curvesBtn.classList.remove('active');
-            currentPathMesh = null;
-            curveModePoints = [];
-        }
-    }
-    onKeyDown(event);
-}
 
 function onKeyUp(event) {
     if (event.key === 'r' || event.key === 't') rotationSpeed = 0;
@@ -865,6 +912,126 @@ function onKeyUp(event) {
         if (event.key === 'ArrowUp' || event.key === 'ArrowDown') objectVelocity.z = 0;
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') objectVelocity.x = 0;
         if (event.key === 'z' || event.key === 'x') objectVelocity.y = 0;
+    }
+}
+
+function mergedModifiedOnMouseMove(event) {
+    onMouseMove(event);
+
+    if ((isCurveMode || isWallMode) && (curveModePoints.length > 0 || wallModePoints.length > 0)) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(ground);
+        if (intersects.length > 0) {
+            const point = intersects[0].point.clone();
+            point.y = 0.05;
+
+            if (isCurveMode) {
+                const tempPoints = [...curveModePoints, point];
+
+                if (currentPathMesh) {
+                    scene.remove(currentPathMesh);
+                }
+
+                const isWaterMode = water.classList.contains('active');
+                currentPathMesh = createPath(tempPoints, isWaterMode);
+
+                if (currentPathMesh) {
+                    scene.add(currentPathMesh);
+                }
+            }
+
+            if (isWallMode) {
+                const tempPoints = [...wallModePoints, point];
+
+                if (currentWallMesh) {
+                    scene.remove(currentWallMesh);
+                }
+
+                currentWallMesh = createWall(tempPoints);
+
+                if (currentWallMesh) {
+                    scene.add(currentWallMesh);
+                }
+            }
+        }
+    }
+}
+function mergedModifiedOnKeyDown(event) {
+    if (isCurveMode || isWallMode) {
+        if (event.key === 'Escape') {
+            if (isCurveMode) {
+                clearPathDrawing();
+            } else if (isWallMode) {
+                clearWallDrawing();
+            }
+        }
+
+        if (event.key === 'Enter') {
+            if (isCurveMode && curveModePoints.length > 1) {
+                if (currentPathMesh) {
+                    paths.push(currentPathMesh);
+                }
+
+                isCurveMode = false;
+                curvesBtn.classList.remove('active');
+                currentPathMesh = null;
+                curveModePoints = [];
+            }
+
+            if (isWallMode && wallModePoints.length > 1) {
+                if (currentWallMesh) {
+                    walls.push(currentWallMesh);
+                    currentWallMesh = null;
+                    wallModePoints = [];
+                    isWallMode = false;
+                    wallBtn.classList.remove('active');
+                }
+            }
+        }
+    }
+    onKeyDown(event);
+}
+function mergedModifiedOnMouseDown(event) {
+    if (!(isCurveMode || isWallMode)) {
+        onMouseDown(event);
+        return;
+    }
+
+    if (event.button !== 0) return;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(ground);
+    if (intersects.length > 0) {
+        const point = intersects[0].point.clone();
+        point.y = 0.05;
+
+        if (isCurveMode) {
+            curveModePoints.push(point);
+            if (currentPathMesh) {
+                scene.remove(currentPathMesh);
+            }
+
+            const isWaterMode = water.classList.contains('active');
+            currentPathMesh = createPath(curveModePoints, isWaterMode);
+
+            if (currentPathMesh) {
+                scene.add(currentPathMesh);
+            }
+        }
+
+        if (isWallMode) {
+            wallModePoints.push(point);
+
+            if (currentWallMesh) {
+                scene.remove(currentWallMesh);
+            }
+
+            currentWallMesh = createWall(wallModePoints);
+
+            if (currentWallMesh) {
+                scene.add(currentWallMesh);
+            }
+        }
     }
 }
 
@@ -929,33 +1096,6 @@ function clearPathDrawing() {
         currentPathMesh = null;
     }
     curveModePoints = [];
-}
-
-function createPath(points, isWater = false) {
-    if (points.length < 2) return null;
-    
-    const adjustedPoints = points.map(point => {
-        const newPoint = point.clone();
-        newPoint.y = isWater ? 0.1 : 0.05;
-        return newPoint;
-    });
-    
-    const pathGeometry = isWater 
-        ? createWaterGeometry(adjustedPoints, 1)
-        : createPathGeometry(adjustedPoints, 1);
-    
-    const pathMaterial = isWater 
-        ? createWaterMaterial()
-        : createPathMaterial();
-    
-    const pathMesh = new THREE.Mesh(pathGeometry, pathMaterial);
-    
-    if (isWater) {
-        pathMesh.renderOrder = 2;
-        pathMaterial.depthTest = true;
-    }
-    
-    return pathMesh;
 }
 
 function animate() {
