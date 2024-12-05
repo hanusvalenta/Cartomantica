@@ -5,6 +5,7 @@ Small D&D map maker made in electron and three js
 * saving a načítání map
 * další nástroje (fence tool atd...)
 * vypnout program esc
+* import model button
 
 # Pro Kryštofa
 
