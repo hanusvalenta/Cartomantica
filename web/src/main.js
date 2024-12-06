@@ -133,6 +133,8 @@ const pathMenu = document.getElementById('pathMenu');
 const curvesBtn = document.getElementById('path');
 const water = document.getElementById('water');
 
+const importBtn = document.getElementById('importBtn');
+
 let isMenuVisible = true;
 let isDeleteMode = false;
 
@@ -154,6 +156,41 @@ toggleMenuBtn.addEventListener('click', () => {
         toggleMenuBtn.classList.add('show');
         toggleMenuBtn.textContent = '→';
     }
+});
+
+importBtn.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.gltf,.glb';
+    input.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const arrayBuffer = e.target.result;
+            const blob = new Blob([arrayBuffer], { type: file.type });
+            const url = URL.createObjectURL(blob);
+
+            loader.load(url, (gltf) => {
+                const model = gltf.scene;
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        const outline = createHandDrawnOutline(child);
+                        child.add(outline);
+                    }
+                });
+
+                model.position.set(0, 1, 0);
+                model.castShadow = true;
+                scene.add(model);
+                spawnedObjects.push(model);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
+    input.click();
 });
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
