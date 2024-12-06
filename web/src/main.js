@@ -891,6 +891,13 @@ function onKeyDown(event) {
             }
         }
     }
+
+    if (event.key === 'Escape') {
+        if (temporaryObject) {
+            placeObject();
+        }
+        window.close();
+    }
 }
 
 function onKeyUp(event) {
