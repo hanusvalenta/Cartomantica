@@ -6,7 +6,7 @@ import { populateObjectList } from './modules/populateObjectList.js';
 import { createHandDrawnOutline } from './modules/createHandDrawnOutline.js';
 
 import { createPathMaterial, createPathGeometry } from './shaders/pathShader.js';
-import { createWaterMaterial, createWaterGeometry } from './shaders/waterShader.js'
+import { createWaterMaterial, createWaterGeometry } from './shaders/waterShader.js';
 
 const scene = new THREE.Scene();
 const loader = new GLTFLoader();
