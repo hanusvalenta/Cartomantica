@@ -1,3 +1,19 @@
+@font-face{
+    font-family: "Rengkoxpersonal";
+    src: url("Rengkoxpersonal.otf"),
+    url("Rengkoxpersonal.otf");
+}
+
+@font-face{
+    font-family: "AncientMedium";
+    src: url("AncientMedium.ttf"),
+    url("AncientMedium.ttf");
+}
+
+*{
+    font-family:"AncientMedium";
+}
+
 body {
     margin: 0;
     overflow: hidden;
