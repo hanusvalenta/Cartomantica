@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "build": "electron-builder"
   },
   "author": "",
   "license": "ISC",
@@ -20,10 +21,12 @@
     "@electron-forge/plugin-fuses": "^7.6.0",
     "@electron/fuses": "^1.8.0",
     "electron": "^33.0.1",
+    "electron-builder": "^25.1.8",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "cartomantica": "file:",
     "electron-squirrel-startup": "^1.0.1",
     "three": "^0.169.0"
   },
