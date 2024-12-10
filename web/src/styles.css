@@ -1,26 +1,9 @@
-@font-face{
-    font-family: "Rengkoxpersonal";
-    src: url("Rengkoxpersonal.otf"),
-    url("Rengkoxpersonal.otf");
-}
-
-@font-face{
-    font-family: "AncientMedium";
-    src: url("AncientMedium.ttf"),
-    url("AncientMedium.ttf");
-}
-
-*{
-    font-family:"AncientMedium";
-}
-
 body {
     margin: 0;
     overflow: hidden;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: #f9f9f9;
     color: #333;
-    font-size: 1.3vw;
 }
 
 #ui {
@@ -41,7 +24,7 @@ body {
 button {
     margin: 4px 0;
     padding: 8px 12px;
-    font-size: 1vw;
+    font-size: 14px;
     border: none;
     border-radius: 4px;
     cursor: pointer;

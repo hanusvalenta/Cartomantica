@@ -4,11 +4,19 @@ export function createWaterMaterial() {
         uniforms: {
             time: { value: 0.0 },
             color: { value: new THREE.Color(0x4169E1) },
-            opacity: { value: 0.7 }
+            opacity: { value: 0.7 },
+            // Add shadow-related uniforms
+            shadowMap: { value: null },
+            shadowMatrix: { value: new THREE.Matrix4() },
+            shadowBias: { value: 0.005 },
+            shadowMapSize: { value: new THREE.Vector2(1024, 1024) },
+            lightPosition: { value: new THREE.Vector3() }
         },
         vertexShader: `
             varying vec2 vUv;
+            varying vec4 vShadowCoord;
             uniform float time;
+            uniform mat4 shadowMatrix;
             
             void main() {
                 vUv = uv;
@@ -20,6 +28,10 @@ export function createWaterMaterial() {
                 transformed.y += sin(position.x * waveFrequency + time) * waveAmplitude;
                 transformed.y += cos(position.z * waveFrequency + time) * waveAmplitude;
                 
+                // Calculate shadow coordinates
+                vec4 worldPosition = modelMatrix * vec4(transformed, 1.0);
+                vShadowCoord = shadowMatrix * worldPosition;
+                
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
             }
         `,
@@ -27,9 +39,14 @@ export function createWaterMaterial() {
             uniform float time;
             uniform vec3 color;
             uniform float opacity;
-            varying vec2 vUv;
+            uniform sampler2D shadowMap;
+            uniform float shadowBias;
+            uniform vec2 shadowMapSize;
             
-            // Simplex noise function
+            varying vec2 vUv;
+            varying vec4 vShadowCoord;
+            
+            // Simplex noise function (keep the existing noise implementation)
             vec3 mod289(vec3 x) {
                 return x - floor(x * (1.0 / 289.0)) * 289.0;
             }
@@ -40,10 +57,10 @@ export function createWaterMaterial() {
                 return mod289(((x*34.0)+1.0)*x);
             }
             float snoise(vec2 v) {
-                const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
-                                    0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
-                                   -0.577350269189626,  // -1.0 + 2.0 * C.x
-                                    0.024390243902439); // 1.0 / 41.0
+                const vec4 C = vec4(0.211324865405187,  
+                                    0.366025403784439,  
+                                   -0.577350269189626,  
+                                    0.024390243902439); 
                 vec2 i  = floor(v + dot(v, C.yy) );
                 vec2 x0 = v -   i + dot(i, C.xx);
                 vec2 i1;
@@ -68,6 +85,33 @@ export function createWaterMaterial() {
                 return 130.0 * dot(m, g);
             }
             
+            // Percentage-closer filtering (PCF) for soft shadows
+            float getShadowStrength() {
+                vec3 shadowCoord = vShadowCoord.xyz / vShadowCoord.w;
+                
+                // Check if the point is within the shadow map
+                if (shadowCoord.x < 0.0 || shadowCoord.x > 1.0 || 
+                    shadowCoord.y < 0.0 || shadowCoord.y > 1.0 || 
+                    shadowCoord.z > 1.0) {
+                    return 1.0;
+                }
+                
+                // Percentage-closer filtering (PCF)
+                float shadow = 0.0;
+                float bias = shadowBias;
+                
+                // 3x3 PCF for soft shadows
+                for (float x = -1.0; x <= 1.0; x += 1.0) {
+                    for (float y = -1.0; y <= 1.0; y += 1.0) {
+                        vec2 offset = vec2(x, y) / shadowMapSize;
+                        float depth = texture2D(shadowMap, shadowCoord.xy + offset).r;
+                        shadow += step(shadowCoord.z - bias, depth);
+                    }
+                }
+                
+                return shadow / 9.0;
+            }
+            
             void main() {
                 // Create water-like noise
                 float noise1 = snoise(vUv * 10.0 + time * 0.2);
@@ -86,7 +130,11 @@ export function createWaterMaterial() {
                 // Combine fades and apply to opacity
                 float fadeOpacity = opacity * startFade * endFade;
                 
-                gl_FragColor = vec4(finalColor, fadeOpacity);
+                // Apply shadow strength
+                float shadowStrength = getShadowStrength();
+                finalColor *= (0.5 + 0.5 * shadowStrength);
+                
+                gl_FragColor = vec4(finalColor, fadeOpacity * shadowStrength);
             }
         `,
         transparent: true,

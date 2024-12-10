@@ -1,3 +1,5 @@
+
+
 import * as THREE from '../../node_modules/three/build/three.module.js';
 import { GLTFLoader } from '../../node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
@@ -6,7 +8,7 @@ import { populateObjectList } from './modules/populateObjectList.js';
 import { createHandDrawnOutline } from './modules/createHandDrawnOutline.js';
 
 import { createPathMaterial, createPathGeometry } from './shaders/pathShader.js';
-import { createWaterMaterial, createWaterGeometry } from './shaders/waterShader.js';
+import { createWaterMaterial, createWaterGeometry } from './shaders/waterShader.js'
 
 const scene = new THREE.Scene();
 const loader = new GLTFLoader();
@@ -132,8 +134,7 @@ const pathmenuButton = document.getElementById('pathMenuButton');
 const pathMenu = document.getElementById('pathMenu');
 const curvesBtn = document.getElementById('path');
 const water = document.getElementById('water');
-
-const importBtn = document.getElementById('importBtn');
+const lakeBtn = document.getElementById('lake');
 
 let isMenuVisible = true;
 let isDeleteMode = false;
@@ -156,41 +157,6 @@ toggleMenuBtn.addEventListener('click', () => {
         toggleMenuBtn.classList.add('show');
         toggleMenuBtn.textContent = '→';
     }
-});
-
-importBtn.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.gltf,.glb';
-    input.addEventListener('change', async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const arrayBuffer = e.target.result;
-            const blob = new Blob([arrayBuffer], { type: file.type });
-            const url = URL.createObjectURL(blob);
-
-            loader.load(url, (gltf) => {
-                const model = gltf.scene;
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        const outline = createHandDrawnOutline(child);
-                        child.add(outline);
-                    }
-                });
-
-                model.position.set(0, 1, 0);
-                model.castShadow = true;
-                scene.add(model);
-                spawnedObjects.push(model);
-            });
-        };
-        reader.readAsArrayBuffer(file);
-    });
-    input.click();
 });
 
 document.getElementById('spawnBtn').addEventListener('click', () => {
@@ -328,7 +294,6 @@ wallBtn.addEventListener('click', () => {
     
     isEditMode = false;
     isDeleteMode = false;
-    deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.remove('active');
 });
@@ -484,7 +449,6 @@ function toggleEditMode() {
         selectedObject = null;
     }
     isDeleteMode = false;
-    deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.toggle('active', isEditMode);
     const transformMenu = document.getElementById('transformMenu');
@@ -928,13 +892,6 @@ function onKeyDown(event) {
             }
         }
     }
-
-    if (event.key === 'Escape') {
-        if (temporaryObject) {
-            placeObject();
-        }
-        window.close();
-    }
 }
 
 function onKeyUp(event) {
@@ -959,13 +916,15 @@ function onKeyUp(event) {
 function mergedModifiedOnMouseMove(event) {
     onMouseMove(event);
 
-    if ((isCurveMode || isWallMode) && (curveModePoints.length > 0 || wallModePoints.length > 0)) {
+    if ((isCurveMode || isWallMode || isLassoMode) && 
+        (curveModePoints.length > 0 || wallModePoints.length > 0 || lassoModePoints.length > 0)) {
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObject(ground);
         if (intersects.length > 0) {
             const point = intersects[0].point.clone();
             point.y = 0.05;
 
+            // Existing curve mode logic
             if (isCurveMode) {
                 const tempPoints = [...curveModePoints, point];
 
@@ -981,6 +940,7 @@ function mergedModifiedOnMouseMove(event) {
                 }
             }
 
+            // Existing wall mode logic
             if (isWallMode) {
                 const tempPoints = [...wallModePoints, point];
 
@@ -994,16 +954,33 @@ function mergedModifiedOnMouseMove(event) {
                     scene.add(currentWallMesh);
                 }
             }
+
+            // New lasso mode logic
+            if (isLassoMode) {
+                const tempPoints = [...lassoModePoints, point];
+
+                if (currentLassoMesh) {
+                    scene.remove(currentLassoMesh);
+                }
+
+                currentLassoMesh = createLake(tempPoints);
+
+                if (currentLassoMesh) {
+                    scene.add(currentLassoMesh);
+                }
+            }
         }
     }
 }
 function mergedModifiedOnKeyDown(event) {
-    if (isCurveMode || isWallMode) {
+    if (isCurveMode || isWallMode || isLassoMode) {
         if (event.key === 'Escape') {
             if (isCurveMode) {
                 clearPathDrawing();
             } else if (isWallMode) {
                 clearWallDrawing();
+            } else if (isLassoMode) {
+                clearLassoDrawing();
             }
         }
 
@@ -1028,12 +1005,22 @@ function mergedModifiedOnKeyDown(event) {
                     wallBtn.classList.remove('active');
                 }
             }
+
+            if (isLassoMode && lassoModePoints.length > 2) {
+                if (currentLassoMesh) {
+                    lakes.push(currentLassoMesh);
+                    currentLassoMesh = null;
+                    lassoModePoints = [];
+                    isLassoMode = false;
+                    lakeBtn.classList.remove('active');
+                }
+            }
         }
     }
     onKeyDown(event);
 }
 function mergedModifiedOnMouseDown(event) {
-    if (!(isCurveMode || isWallMode)) {
+    if (!(isCurveMode || isWallMode || isLassoMode)) {
         onMouseDown(event);
         return;
     }
@@ -1046,6 +1033,7 @@ function mergedModifiedOnMouseDown(event) {
         const point = intersects[0].point.clone();
         point.y = 0.05;
 
+        // Existing curve mode logic
         if (isCurveMode) {
             curveModePoints.push(point);
             if (currentPathMesh) {
@@ -1060,6 +1048,7 @@ function mergedModifiedOnMouseDown(event) {
             }
         }
 
+        // Existing wall mode logic
         if (isWallMode) {
             wallModePoints.push(point);
 
@@ -1071,6 +1060,21 @@ function mergedModifiedOnMouseDown(event) {
 
             if (currentWallMesh) {
                 scene.add(currentWallMesh);
+            }
+        }
+
+        // New lasso mode logic
+        if (isLassoMode) {
+            lassoModePoints.push(point);
+
+            if (currentLassoMesh) {
+                scene.remove(currentLassoMesh);
+            }
+
+            currentLassoMesh = createLake(lassoModePoints);
+
+            if (currentLassoMesh) {
+                scene.add(currentLassoMesh);
             }
         }
     }
@@ -1109,7 +1113,6 @@ curvesBtn.addEventListener('click', () => {
     
     isEditMode = false;
     isDeleteMode = false;
-    deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.remove('active');
 });
@@ -1126,10 +1129,92 @@ water.addEventListener('click', () => {
     
     isEditMode = false;
     isDeleteMode = false;
-    deleteBtn.classList.remove('active');
     const editBtn = document.getElementById('editBtn');
     editBtn.classList.remove('active');
 });
+
+let isLassoMode = false;
+let lassoModePoints = [];
+let currentLassoMesh = null;
+//let lakes = [];
+
+/*function createLakeGeometry(points) {
+    if (points.length < 3) return null;
+
+    // Create a shape from the points
+    const shape = new THREE.Shape();
+    shape.moveTo(points[0].x, points[0].z);
+    for (let i = 1; i < points.length; i++) {
+        shape.lineTo(points[i].x, points[i].z);
+    }
+    shape.closePath();
+
+    // Create a flat extruded geometry to represent the lake
+    const extrudeSettings = {
+        steps: 1,
+        depth: 0.1,
+        bevelEnabled: false
+    };
+
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    return geometry;
+}
+
+function createLakeMaterial() {
+    return new THREE.MeshStandardMaterial({ 
+        color: 0x4682B4,  // A water blue color
+        transparent: true,
+        opacity: 0.7,
+        roughness: 0.5,
+        metalness: 0.2
+    });
+}
+
+function createLake(points) {
+    if (points.length < 2) return null;
+    
+    const adjustedPoints = points.map(point => {
+        const newPoint = point.clone();
+        newPoint.y = 0.05;
+        return newPoint;
+    });
+    
+    const lakeGeometry = createLakeGeometry(adjustedPoints);
+    const lakeMaterial = createLakeMaterial();
+    
+    const lakeMesh = new THREE.Mesh(lakeGeometry, lakeMaterial);
+    lakeMesh.receiveShadow = true;
+    lakeMesh.renderOrder = 2;  // Ensure it renders after other objects
+    
+    return lakeMesh;
+}
+
+lakeBtn.addEventListener('click', () => {
+    isLassoMode = !isLassoMode;
+    lakeBtn.classList.toggle('active', isLassoMode);
+    
+    // Disable other modes
+    curvesBtn.classList.remove('active');
+    water.classList.remove('active');
+    wallBtn.classList.remove('active');
+    
+    if (lassoModePoints.length > 0) {
+        clearLassoDrawing();
+    }
+    
+    isEditMode = false;
+    isDeleteMode = false;
+    const editBtn = document.getElementById('editBtn');
+    editBtn.classList.remove('active');
+});*/
+
+function clearLassoDrawing() {
+    if (currentLassoMesh) {
+        scene.remove(currentLassoMesh);
+        currentLassoMesh = null;
+    }
+    lassoModePoints = [];
+}
 
 function clearPathDrawing() {
     if (currentPathMesh) {
